@@ -21,7 +21,7 @@ const AlertMessage: React.FC = () => {
       showIcon
       closable
       onClose={() => dispatch(hideAlert())}
-      style={{ marginBottom: '16px' }}
+      style={{ marginBottom: '16px', zIndex: 200 }}
     />
   );
 };

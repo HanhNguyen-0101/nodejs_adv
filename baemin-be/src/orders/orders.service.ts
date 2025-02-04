@@ -22,7 +22,9 @@ export class OrdersService {
       where,
       orderBy,
       include: {
-        users: true
+        users: true,
+        order_items: true,
+        shipping: true,
       }
     });
     return orders as unknown as Order[];
@@ -34,7 +36,9 @@ export class OrdersService {
     return this.prisma.orders.findUnique({
       where: orderWhereUniqueInput,
       include: {
-        users: true
+        users: true,
+        order_items: true,
+        shipping: true,
       }
     }) as Promise<Order | null>;
   }
@@ -44,6 +48,8 @@ export class OrdersService {
       data,
       include: {
         users: true,
+        order_items: true,
+        shipping: true,
       }
     });
 
@@ -64,6 +70,8 @@ export class OrdersService {
       where,
       include: {
         users: true,
+        order_items: true,
+        shipping: true,
       }
     });
 
@@ -79,6 +87,8 @@ export class OrdersService {
       where,
       include: {
         users: true,
+        order_items: true,
+        shipping: true,
       }
     });
 

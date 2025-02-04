@@ -10,3 +10,4 @@ export const LOGIN_URL = URL + '/auth/login';
 export const CATEGORY_URL = URL + '/categories';
 export const SHOP_URL = URL + '/shops';
 export const PRODUCT_URL = URL + '/products';
+export const ORDER_URL = URL + '/orders/makepayment';
