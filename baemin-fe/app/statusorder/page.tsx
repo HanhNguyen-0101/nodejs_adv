@@ -4,8 +4,11 @@ import Image from 'next/image';
 import React from 'react';
 import Status from './status';
 import DetailsCheckout from '../checkout/detailsCheckout';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 const Page: React.FC = () => {
+    const { orders } = useSelector((state: RootState) => state.cart);
     const status = [
         {
             id: '1',
@@ -45,24 +48,17 @@ const Page: React.FC = () => {
             st: false
         },
     ]
-    const detail: any = [
-        {
-            name:'Ga ran',
-            description:'Chiên bột',
-            price:17000,
-            quantity:2,
-            totalprice:17000,
-            img:'/food/ga1.jpg'
-        },
-        {
-            name:'Ga ran',
-            description:'Chiên bột',
-            price:17000,
-            quantity:2,
-            totalprice:17000,
+    const detail: any = (orders?.order_items || []).map(p => {
+        return {
+            name: p.products.name,
+            description: p.products.description,
+            price: p.price,
+            quantity: p.quantity,
+            totalprice: +p.price * +p.quantity,
             img:'/food/ga1.jpg'
         }
-    ]
+    })
+    console.log('-------', orders)
     return (
         <>
             <div className="flex flex-row w-full h-20 bg-white ">

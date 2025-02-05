@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Shipping } from './entities/shipping.entity';
+import { CreateShippingDto } from './dto/create-shipping.dto';
 
 @Injectable()
 export class ShippingService {
@@ -39,7 +40,7 @@ export class ShippingService {
     }) as Promise<Shipping | null>;
   }
 
-  async create(data: Prisma.shippingCreateInput): Promise<Shipping> {
+  async create(data: CreateShippingDto): Promise<Shipping> {
     const shipping = await this.prisma.shipping.create({
       data,
       include: {

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OrderItem } from './entities/order_item.entity';
+import { CreateOrderItemDto } from './dto/create-order_item.dto';
 
 @Injectable()
 export class OrderItemsService {
@@ -41,7 +42,7 @@ export class OrderItemsService {
     }) as Promise<OrderItem | null>;
   }
 
-  async create(data: Prisma.order_itemsCreateInput): Promise<OrderItem> {
+  async create(data: CreateOrderItemDto): Promise<OrderItem> {
     const orderItem = await this.prisma.order_items.create({
       data,
       include: {

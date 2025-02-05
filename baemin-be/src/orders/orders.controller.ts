@@ -10,6 +10,9 @@ import {
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { User } from 'src/users/entities/user.entity';
+import { CreateShippingDto } from 'src/shipping/dto/create-shipping.dto';
+import { CreateOrderItemDto } from 'src/order_items/dto/create-order_item.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -41,5 +44,18 @@ export class OrdersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.ordersService.remove({ order_id: +id });
+  }
+
+  @Post('makepayment')
+  async makepayment(
+    @Body()
+    body: {
+      users: User;
+      order_items: CreateOrderItemDto[];
+      shipping: CreateShippingDto;
+      total: number;
+    },
+  ) {
+    return this.ordersService.makepayment(body);
   }
 }

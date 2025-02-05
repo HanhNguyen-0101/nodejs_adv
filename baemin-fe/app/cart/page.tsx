@@ -7,13 +7,20 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import DetailsCart from "./detailsCart";
 import { Button } from "antd";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import Link from "next/link";
+import { clearOrder } from "../store/cartSlice";
 
 export default function Home() {
+  const dispatch = useDispatch();
   const { carts } = useSelector((state: RootState) => state.cart);
   const { visible } = useSelector((state: RootState) => state.alert);
+
+  useEffect(() => {
+    dispatch(clearOrder());
+  }, [])
+
   const groupedByShop = carts?.reduce((acc, product) => {
     const shopId = product.shop_id;
     if (!acc[shopId]) {

@@ -2,12 +2,9 @@
 
 import {
   AccountBookOutlined,
-  CompassOutlined,
   ShoppingCartOutlined,
 } from "@ant-design/icons";
-import Image from "next/image";
 import DetailsCheckout from "./detailsCheckout";
-import { redirect } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { Radio } from "antd";
@@ -16,6 +13,8 @@ import { hideLoading, showLoading } from "../store/loadingSlice";
 import axios from "axios";
 import { ORDER_URL, STATUS_CODE } from "../store/constants";
 import { addOrder, clearCart } from "../store/cartSlice";
+import { redirect } from "next/navigation";
+
 const fees = {
   shippingFee: "17.00",
   voucher: "0.00",
@@ -46,6 +45,7 @@ const methods = [
   },
 ];
 export default function Home() {
+  const { orders } = useSelector((state: RootState) => state.cart);
   const { carts } = useSelector((state: RootState) => state.cart);
   const { user } = useSelector((state: RootState) => state.user);
   const [currentMethod, setCurrentMethod] = useState(methods[0].id);
@@ -74,7 +74,6 @@ export default function Home() {
       total: totalPrice + +fees.shippingFee - +fees.voucher,
     };
     handleOrder(data);
-    console.log("------", data);
   };
   const handleOrder = async (data: any) => {
     dispatch(showLoading());
@@ -83,7 +82,6 @@ export default function Home() {
       if (orderRes.status === STATUS_CODE.CREATE_SUCCESS) {
         dispatch(addOrder(orderRes.data));
         dispatch(clearCart());
-        redirect("/statusorder");
       }
     } catch (error) {
       console.error("Error submitting data", error);
@@ -93,6 +91,9 @@ export default function Home() {
   };
   if (!user) {
     return redirect("/login");
+  }
+  if (orders && Object.keys(orders).length > 0) {
+    return redirect("/statusorder");
   }
   return (
     <>
@@ -226,7 +227,7 @@ export default function Home() {
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">Tổng thanh toán</div>
               <div className="text-2xl mr-5 text-beamin">
-                {totalPrice + +fees.shippingFee - +fees.voucher}
+                {totalPrice + (+fees.shippingFee) - (+fees.voucher)}
               </div>
             </div>
           </div>
