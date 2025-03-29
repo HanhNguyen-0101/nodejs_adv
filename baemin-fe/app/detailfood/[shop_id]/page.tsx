@@ -5,13 +5,8 @@ import { PRODUCT_URL, SHOP_URL, STATUS_CODE } from "@/app/store/constants";
 import { hideLoading, showLoading } from "@/app/store/loadingSlice";
 import { getAll } from "@/app/store/productSlice";
 import { getOne } from "@/app/store/shopSlice";
-import HeaderNav from "@/components/headerNav";
-import ScrollBar from "@/components/scrollBar";
-import ScrollFood from "@/components/scrollFood";
 import {
-  ClockCircleOutlined,
   ClockCircleTwoTone,
-  DollarOutlined,
   DollarTwoTone,
   DoubleRightOutlined,
   LikeFilled,
@@ -48,8 +43,8 @@ export default function Home({ params }: any) {
         productRes.status === STATUS_CODE.SUCCESS
       ) {
         dispatch(getOne(shopRes.data));
-        dispatch(getAll(productRes.data));
-        const prods = productRes.data?.filter(
+        dispatch(getAll(productRes.data?.products));
+        const prods = productRes.data?.products?.filter(
           (p: any) => p.shop_id == params.shop_id
         );
         setCurrentProducts(prods);

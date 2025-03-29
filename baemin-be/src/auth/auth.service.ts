@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service'; // Assuming you have a UsersService to interact with the user data
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -16,11 +16,17 @@ export class AuthService {
         password_hash: hashedPassword,
         email: createUserDto.email
       });
+      if (!user) {
+        throw new HttpException('Failed to create user', HttpStatus.BAD_REQUEST);
+      }
       return user;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          return { message: 'Username already exists' };
+          throw new HttpException(
+            'Username already exists',
+            HttpStatus.CONFLICT,
+          );  
         }
       }
       throw error;

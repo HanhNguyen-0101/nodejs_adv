@@ -26,9 +26,9 @@ export default function DetailsCheckout({ items }: { items: any[] }) {
                     <span className="text-sm text-gray-600">{item.description}</span>
                 </div>
             </div>
-            <div className="col-span-2 ml-1 flex items-center" >{item.price} </div>
+            <div className="col-span-2 ml-1 flex items-center" >{(+item.price)?.toFixed(2)} </div>
             <div className="col-span-2 ml-5 flex items-center " >{item.quantity} </div>
-            <div className="col-span-2 ml-5  flex items-center" >{item.totalprice}</div>
+            <div className="col-span-2 ml-5  flex items-center" >{item.totalprice.toFixed(2)}</div>
         </div>
           
            ))}

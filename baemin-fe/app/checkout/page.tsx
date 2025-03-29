@@ -14,36 +14,9 @@ import axios from "axios";
 import { ORDER_URL, STATUS_CODE } from "../store/constants";
 import { addOrder, clearCart } from "../store/cartSlice";
 import { redirect } from "next/navigation";
+import { methods, shippingInfo, fees } from "../constants/constant";
 
-const fees = {
-  shippingFee: "17.00",
-  voucher: "0.00",
-};
-const shippingInfo = {
-  address: "123 Lê Lợi, Quận 1",
-  city: "Ho Chi Minh City",
-  state: "State",
-  postal_code: "12345",
-  country: "Vietnam",
-};
-const methods = [
-  {
-    id: "momo",
-    name: "MoMo",
-  },
-  {
-    id: "zalopay",
-    name: "ZaloPay",
-  },
-  {
-    id: "card",
-    name: "Thẻ tín dụng/ Thẻ ghi nợ",
-  },
-  {
-    id: "cash",
-    name: "Thanh toán khi nhận hàng",
-  },
-];
+
 export default function Home() {
   const { orders } = useSelector((state: RootState) => state.cart);
   const { carts } = useSelector((state: RootState) => state.cart);
@@ -71,7 +44,7 @@ export default function Home() {
         ...shippingInfo,
         shipping_method: currentMethod,
       },
-      total: totalPrice + +fees.shippingFee - +fees.voucher,
+      total: totalPrice + fees.shippingFee - fees.discount,
     };
     handleOrder(data);
   };
@@ -92,9 +65,13 @@ export default function Home() {
   if (!user) {
     return redirect("/login");
   }
+  if (!carts?.length && !orders) {
+    return redirect("/dashboard");
+  }
   if (orders && Object.keys(orders).length > 0) {
     return redirect("/statusorder");
   }
+  
   return (
     <>
       <div className="flex flex-row w-full h-20 bg-white ">
@@ -186,7 +163,7 @@ export default function Home() {
                   </span>
                 </div>
                 <div className="col-span-2">
-                  <span className=" text-sm"> {fees.shippingFee}</span>
+                  <span className=" text-sm"> {fees.shippingFee?.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -212,22 +189,22 @@ export default function Home() {
           <div className="w-full   border-t flex flex-col justify-end items-end pt-4  gap-4">
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">Tổng tiền hàng</div>
-              <div className="text-sm mr-5">{totalPrice}</div>
+              <div className="text-sm mr-5">{totalPrice?.toFixed(2)}</div>
             </div>
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">Phí vận chuyển</div>
-              <div className="text-sm mr-5">{fees.shippingFee}</div>
+              <div className="text-sm mr-5">{fees.shippingFee?.toFixed(2)}</div>
             </div>
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">
                 Tổng cộng Voucher giảm giá:
               </div>
-              <div className="text-sm mr-5">-{fees.voucher}</div>
+              <div className="text-sm mr-5">-{fees.discount?.toFixed(2)}</div>
             </div>
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">Tổng thanh toán</div>
               <div className="text-2xl mr-5 text-beamin">
-                {totalPrice + (+fees.shippingFee) - (+fees.voucher)}
+                {(totalPrice + fees.shippingFee - fees.discount).toFixed(2)}
               </div>
             </div>
           </div>

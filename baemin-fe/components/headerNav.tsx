@@ -18,7 +18,7 @@ import { onClearUser } from "@/app/store/userSlice";
 export default function HeaderNav() {
   const router = useRouter();
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
-    router.push("/sreach");
+    router.push(`/sreach?query=${value}&take=5&page=1`);
   };
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.user);
@@ -54,10 +54,9 @@ export default function HeaderNav() {
         </svg>
       </Link>
       <div className="grow  flex flex-row items-center gap-9	 ">
-        <Select className="ml-10 w-28 	"></Select>
         <Search
           className="w-1/3"
-          placeholder="input search text"
+          placeholder="Tìm kiếm..."
           enterButton="Tìm kiếm"
           size="large"
           onSearch={onSearch}
@@ -87,7 +86,7 @@ export default function HeaderNav() {
             type="text"
             icon={<SolutionOutlined />}
           >
-            Dang xuat
+            Đăng xuất
           </Button>
         ) : (
           <Link

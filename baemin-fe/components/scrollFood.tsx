@@ -1,7 +1,5 @@
 "use client";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { BhuTuka_Expanded_One } from "next/font/google";
-import { title } from "process";
 import React, { useRef } from "react";
 import { useState } from "react";
 import Image from "next/image";
@@ -61,15 +59,16 @@ export default function ScrollBar({ items }: { items: any }) {
                 <Link
                   key={item.product_id}
                   href={`/detailfood/${item.shops.shop_id}`}
-                  className=" group w-48 h-full cursor-pointer "
+                  className=" group w-full h-full cursor-pointer "
                 >
-                  <div className="w-full h-2/3">
+                  <div className="w-full">
                     <div
                       className="group-hover:brightness-75"
                       style={{
                         position: "relative",
                         width: "100%",
-                        height: "100%",
+                        minWidth: "200px",
+                        height: "180px",
                       }}
                     >
                       <Image

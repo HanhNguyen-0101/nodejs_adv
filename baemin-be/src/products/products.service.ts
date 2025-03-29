@@ -13,20 +13,46 @@ export class ProductsService {
     cursor?: Prisma.productsWhereUniqueInput;
     where?: Prisma.productsWhereInput;
     orderBy?: Prisma.productsOrderByWithRelationInput;
-  }): Promise<Product[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    const products = await this.prisma.products.findMany({
+    searchTerm?: string;
+  }): Promise<{ products: any; total: number }> {
+    const { skip, take, cursor, where, orderBy, searchTerm } = params;
+  
+    const enhancedWhere: Prisma.productsWhereInput = {
+      ...where,
+      OR: searchTerm
+        ? [
+            { name: { contains: searchTerm, mode: 'insensitive' } },
+            { description: { contains: searchTerm, mode: 'insensitive' } },
+          ]
+        : undefined,
+    };
+  
+    // Fetch paginated products
+    const rawProducts = await this.prisma.products.findMany({
       skip,
       take,
       cursor,
-      where,
+      where: enhancedWhere,
       orderBy,
       include: {
         categories: true,
-        shops: true
-      }
+        shops: true,
+      },
     });
-    return products as unknown as Product[];
+  
+    // Transform the raw products to match the `Product` type
+    const products = rawProducts.map((product) => ({
+      ...product,
+      category: product.categories, // Map `categories` to `category`
+      shop: product.shops,         // Map `shops` to `shop`
+    }));
+  
+    // Fetch total count
+    const total = await this.prisma.products.count({
+      where: enhancedWhere,
+    });
+  
+    return { products, total };
   }
 
   async findOne(

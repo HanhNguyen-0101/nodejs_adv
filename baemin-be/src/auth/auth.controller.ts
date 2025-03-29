@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
@@ -19,7 +19,7 @@ export class AuthController {
       body.password,
     );
     if (!user) {
-      return { message: 'Invalid credentials' };
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
     return user;
   }

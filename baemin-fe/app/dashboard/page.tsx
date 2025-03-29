@@ -11,6 +11,7 @@ import axios from "axios";
 import { getAll } from "../store/categorySlice";
 import { getAll as getProducts } from "../store/productSlice";
 import { RootState } from "../store";
+import { banneritems } from "../constants/constant";
 
 export default function Home() {
     const dispatch = useDispatch();
@@ -29,9 +30,9 @@ export default function Home() {
             const productRes = await axios.get(PRODUCT_URL);
             if (categoryRes.status === STATUS_CODE.SUCCESS && productRes.status === STATUS_CODE.SUCCESS) {
                 dispatch(getAll(categoryRes.data));
-                dispatch(getProducts(productRes.data));
+                dispatch(getProducts(productRes.data.products));
                 setCurrentCategory(categoryRes.data[0]?.category_id);
-                setCurrentProducts(productRes.data);
+                setCurrentProducts(productRes.data.products);
             }
         } catch (error) {
             console.error("Error submitting data", error);
@@ -43,36 +44,7 @@ export default function Home() {
         setCurrentCategory(categoryId);
         setCurrentProducts((products || []).filter((s: any) => s.categories.category_id === categoryId));
     }
-    // const items = [
-    //     { name: "Gà Rán", imageSrc: "/images/Ga.png", description: "Thức ăn nhanh" },
-    //     { name: "Burger", imageSrc: "/images/burger.jpg", description: "Thức ăn nhanh" },
-    //     { name: "Bún", imageSrc: "/images/noddle.png", description: "Thức ăn nhanh" },
-    //     { name: "Mì", imageSrc: "/images/noddle.png", description: "Thức ăn nhanh" },
-    //     { name: "Burger", imageSrc: "/images/noddle.png", description: "Thức ăn nhanh" },
-    // ];
 
-    const banneritems = [
-        {
-            id: '1',
-            name: 'anh 1',
-            url: '/images/map1.png',
-        },
-        {
-            id: '2',
-            name: 'anh 2',
-            url: '/images/map2.png',
-        },
-        {
-            id: '3',
-            name: 'anh 32',
-            url: '/images/map3.png',
-        },
-        {
-            id: '3',
-            name: 'anh 32',
-            url: '/images/map4.png',
-        }
-    ]
     const TodayFood = {
         title: 'Hôm Nay ăn gi',
         items: currentProducts?.map((s: any) => ({

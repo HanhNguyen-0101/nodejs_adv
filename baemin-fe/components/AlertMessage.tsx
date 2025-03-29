@@ -1,15 +1,22 @@
-// components/AlertMessage.tsx
-'use client';
-
-import React from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from 'antd';
-import { RootState } from '@/app/store';
 import { hideAlert } from '@/app/store/alertSlice';
+import { RootState } from '@/app/store';
 
 const AlertMessage: React.FC = () => {
   const dispatch = useDispatch();
   const alert = useSelector((state: RootState) => state.alert);
+
+  useEffect(() => {
+    if (alert.visible) {
+      const timer = setTimeout(() => {
+        dispatch(hideAlert());
+      }, 2000);
+
+      return () => clearTimeout(timer); // Cleanup timer when component unmounts or alert changes
+    }
+  }, [alert.visible, dispatch]);
 
   if (!alert.visible) return null;
 

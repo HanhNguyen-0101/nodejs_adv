@@ -1,7 +1,6 @@
 'use client'
 
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import { BhuTuka_Expanded_One } from "next/font/google";
 import Image from "next/image";
 import React, { useRef } from "react";
 import { useState } from "react";
@@ -31,8 +30,8 @@ export default function ScrollBar({ items }: { items: any[] }) {
         }
         <div ref={containerRef} className="relative scroll-container flex bg-white rounded-2xl w-full  p-4 gap-2" style={{ height: '300px !important' }}>
           {items.map((item:any, index: any) => (
-            <div key={index} className="relative flex-shrink-0 w-1/2 bg-blue-200 p-4 cursor-pointer "   >
-            <Image  layout="fill" objectFit="cover" src={item.url} alt="" ></Image>
+            <div key={index} className="relative flex-shrink-0 w-1/2 h-64 bg-blue-200 p-4 cursor-pointer">
+              <Image  layout="fill" objectFit="cover" src={item.url} alt=""></Image>
             </div>
           ))}
     

@@ -52,7 +52,12 @@ const Page: React.FC = () => {
       }
     } catch (error) {
       console.error("Error submitting data", error);
-      throw error;
+      dispatch(
+        showAlert({
+          type: "error",
+          message: error?.response.data.message || error?.message,
+        })
+      );
     }
     dispatch(hideLoading());
   };

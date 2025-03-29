@@ -74,7 +74,7 @@ export default function DetailsCart({ Details }: { Details: any[] }) {
                   </div>
                 </div>
                 <div className="col-span-2 flex items-center justify-center flex-row gap-3">
-                  {item.price}
+                  {(+item.price).toFixed(2)}
                 </div>
                 <div className="col-span-2 flex items-center justify-center flex-row gap-3">
                   <input
@@ -89,7 +89,7 @@ export default function DetailsCart({ Details }: { Details: any[] }) {
                   />
                 </div>
                 <div className="col-span-2 flex items-center justify-center flex-row gap-3">
-                  {item.totalprice}
+                  {item.totalprice.toFixed(2)}
                 </div>
                 <div className="col-span-2 flex items-center justify-center flex-row gap-3">
                   <button
