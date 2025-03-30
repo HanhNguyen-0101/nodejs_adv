@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { PrismaModule } from './prisma/prisma.module';
-import { OrderItemsModule } from './order_items/order_items.module';
+import { ShippingService } from './shipping.service';
+import { ShippingController } from './shipping.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
-  imports: [PrismaModule, OrderItemsModule,
+  imports: [
     ClientsModule.register([
       {
         name: "SHIPPING_NAME",
@@ -21,7 +19,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       },
     ]
   )],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [ShippingController],
+  providers: [ShippingService],
+  exports: [ShippingService],
 })
-export class AppModule {}
+export class ShippingModule {}
