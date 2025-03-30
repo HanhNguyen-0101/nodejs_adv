@@ -1,35 +1,25 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { UsersModule } from './users/users.module';
+import { ShopsModule } from './shops/shops.module';
+import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ClientsModule.register(
-    [
-      {
-        name: "PRODUCT_NAME",
-        transport: Transport.RMQ,
-        options: {
-          urls: ["amqp://admin:1234@localhost:5672"],
-          queue: "product_queue",
-          queueOptions: {
-            durable: false
-          }
-        }
-      },
-      {
-        name: "USER_NAME",
-        transport: Transport.RMQ,
-        options: {
-          urls: ["amqp://admin:1234@localhost:5672"],
-          queue: "user_queue",
-          queueOptions: {
-            durable: false
-          }
-        }
-      },
-    ]
-  )],
+  imports: [
+    UsersModule,
+    ShopsModule,
+    CategoriesModule,
+    ProductsModule,
+    // OrdersModule,
+    // OrderItemsModule,
+    // ShippingModule,
+    AuthModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

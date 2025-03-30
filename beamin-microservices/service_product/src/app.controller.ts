@@ -8,24 +8,6 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // @EventPattern("save_ship")
-  // async saveShipping(@Payload() data) {
-
-  //   let { orderId, email, firstName, lastName, address } = data;
-
-  //   let infoShip = {
-  //     order_id: orderId,
-  //     email,
-  //     first_name: firstName,
-  //     last_name: lastName,
-  //     address
-  //   }
-  //   await this.prismaService.shipping.create({ data: infoShip });
-
-  //   // gọi service notify xử lý gửi mail thành công
-  //   this.notifyService.emit("send_mail_success", { email: email });
-  // }
-
   @MessagePattern('products.find_all')
   findAll(
     @Payload()
