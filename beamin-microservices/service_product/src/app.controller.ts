@@ -3,23 +3,39 @@ import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { SearchService } from './search/search.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly searchService: SearchService,
+  ) {}
 
+  @MessagePattern('products.search')
+  async search(payload: { searchTerm: string; skip?: number; take?: number }) {
+    const { searchTerm, skip, take } = payload;
+    const results = await this.searchService.searchProducts(
+      searchTerm,
+      skip,
+      take,
+    );
+    return results; // Return matched products
+  }
+  
   @MessagePattern('products.find_all')
   findAll(
     @Payload()
     payload: {
-      searchTerm?: string,
-      skip?: string,
-      take?: string, 
-      orderBy?: string
-  }) {
+      searchTerm?: string;
+      skip?: string;
+      take?: string;
+      orderBy?: string;
+    }
+  ) {
     const { searchTerm, skip, take, orderBy } = payload;
     let orderByParsed;
-
+  
     // Safely parse orderBy if provided
     if (orderBy) {
       try {
@@ -28,7 +44,7 @@ export class AppController {
         throw new BadRequestException('Invalid JSON format for orderBy');
       }
     }
-
+  
     return this.appService.findAll({
       searchTerm,
       skip: skip ? Number(skip) : undefined, // Convert skip to number
@@ -62,5 +78,3 @@ export class AppController {
     return this.appService.remove({ product_id: +payload.id });
   }
 }
-
-

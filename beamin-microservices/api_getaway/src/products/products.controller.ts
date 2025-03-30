@@ -26,11 +26,29 @@ export class ProductsController {
     @Query('orderBy') orderBy?: string, // JSON string from query
   ) {
     const products = await lastValueFrom(
-      this.productService.send('products.find_all', { // Match the message topic
+      this.productService.send('products.find_all', {
+        // Match the message topic
         searchTerm,
         skip,
         take,
         orderBy,
+      }),
+    );
+
+    return products;
+  }
+
+  @Get('/search')
+  async search(
+    @Query('searchTerm') searchTerm?: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ) {
+    const products = await lastValueFrom(
+      this.productService.send('products.search', {
+        searchTerm,
+        skip,
+        take,
       }),
     );
 
@@ -52,7 +70,10 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
     return await lastValueFrom(
       this.productService.send('products.update', { id, updateProductDto }),
     );
@@ -64,5 +85,4 @@ export class ProductsController {
       this.productService.send('products.remove', { id }),
     );
   }
-
 }

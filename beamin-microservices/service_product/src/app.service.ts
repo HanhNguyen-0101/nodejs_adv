@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Product } from './entities/product.entity';
 import { Prisma } from '@prisma/client';
+import { SearchService } from './search/search.service';
 
 @Injectable()
 export class AppService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly searchService: SearchService,
+  ) {}
 
   async findAll(params: {
     skip?: number;
@@ -16,7 +20,7 @@ export class AppService {
     searchTerm?: string;
   }): Promise<{ products: any; total: number }> {
     const { skip, take, cursor, where, orderBy, searchTerm } = params;
-  
+
     const enhancedWhere: Prisma.productsWhereInput = {
       ...where,
       OR: searchTerm
@@ -84,6 +88,8 @@ export class AppService {
       throw new Error('Category property is missing in the product.');
     }
 
+    await this.searchService.indexProduct(product); // Index product in Elasticsearch
+
     return product as unknown as Product;
   }
 
@@ -108,6 +114,7 @@ export class AppService {
     if (!product.categories) {
       throw new Error('Category property is missing in the product.');
     }
+    await this.searchService.indexProduct({ id: where.product_id, ...data }); // Reindex updated product
 
     return product as unknown as Product;
   }
