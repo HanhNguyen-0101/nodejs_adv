@@ -26,7 +26,7 @@ export class AppController {
   //   this.notifyService.emit("send_mail_success", { email: email });
   // }
 
-  @MessagePattern('find_all_product')
+  @MessagePattern('products.find_all')
   findAll(
     @Payload()
     payload: {
@@ -55,17 +55,17 @@ export class AppController {
     });
   }
 
-  @MessagePattern('create_product')
+  @MessagePattern('products.create')
   create(@Payload() createProductDto: CreateProductDto) {
     return this.appService.create(createProductDto);
   }
 
-  @MessagePattern('find_product')
+  @MessagePattern('products.find_one')
   findOne(@Payload() payload: { id: string }) {
     return this.appService.findOne({ product_id: +payload.id });
   }
 
-  @MessagePattern('update_product')
+  @MessagePattern('products.update')
   update(
     @Payload() payload: { id: string; updateProductDto: UpdateProductDto },
   ) {
@@ -75,7 +75,7 @@ export class AppController {
     });
   }
 
-  @MessagePattern('remove_product')
+  @MessagePattern('products.remove')
   remove(@Payload() payload: { id: string }) {
     return this.appService.remove({ product_id: +payload.id });
   }

@@ -34,7 +34,7 @@ export class AppController {
     @Query('orderBy') orderBy?: string, // JSON string from query
   ) {
     const products = await lastValueFrom(
-      this.productService.send('find_all_product', { // Match the message topic
+      this.productService.send('products.find_all', { // Match the message topic
         searchTerm,
         skip,
         take,
@@ -48,28 +48,28 @@ export class AppController {
   @Post('/products')
   async create(@Body() createProductDto: CreateProductDto) {
     return await lastValueFrom(
-      this.productService.send('create_product', createProductDto),
+      this.productService.send('products.create', createProductDto),
     );
   }
 
   @Get('/products:id')
   async findOne(@Param('id') id: string) {
     return await lastValueFrom(
-      this.productService.send('find_product', { id }),
+      this.productService.send('products.find_one', { id }),
     );
   }
 
   @Patch('/products:id')
   async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return await lastValueFrom(
-      this.productService.send('update_product', { id, updateProductDto }),
+      this.productService.send('products.update', { id, updateProductDto }),
     );
   }
 
   @Delete('/products:id')
   async remove(@Param('id') id: string) {
     return await lastValueFrom(
-      this.productService.send('remove_product', { id }),
+      this.productService.send('products.remove', { id }),
     );
   }
 
