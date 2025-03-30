@@ -6,8 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://admin:1234@localhost:5672'],
-      queue: 'shipping_queue',
+      urls: [process.env.RMQ_URLS ?? ''],
+      queue: process.env.RMQ_SHIPPING_QUEUE,
       queueOptions: {
         durable: false,
       },

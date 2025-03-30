@@ -7,11 +7,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   imports: [
     ClientsModule.register([
       {
-        name: "ORDER_NAME",
+        name: process.env.SERVICE_ORDER_NAME ?? '',
         transport: Transport.RMQ,
         options: {
-          urls: ["amqp://admin:1234@localhost:5672"],
-          queue: "order_queue",
+          urls: [process.env.RMQ_URLS ?? ''],
+          queue: process.env.RMQ_ORDER_QUEUE,
           queueOptions: {
             durable: false
           }

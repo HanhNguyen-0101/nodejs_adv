@@ -7,11 +7,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   imports: [ClientsModule.register(
     [
       {
-        name: "PRODUCT_NAME",
+        name: process.env.SERVICE_PRODUCT_NAME ?? '',
         transport: Transport.RMQ,
         options: {
-          urls: ["amqp://admin:1234@localhost:5672"],
-          queue: "product_queue",
+          urls: [process.env.RMQ_URLS ?? ''],
+          queue: process.env.RMQ_PRODUCT_QUEUE,
           queueOptions: {
             durable: false
           }
@@ -21,5 +21,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   )],
   controllers: [ShopsController],
   providers: [ShopsService],
+  exports: [ShopsService],
 })
 export class ShopsModule {}

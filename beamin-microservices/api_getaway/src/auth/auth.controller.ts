@@ -6,6 +6,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 @Controller('auth')
 export class AuthController {
   constructor(@Inject('USER_NAME') private userService: ClientProxy) {}
+  
   @Post('/signup')
   async signup(@Body() createUserDto: CreateUserDto) {
     return await lastValueFrom(this.userService.send('auth.signup', createUserDto));
