@@ -3,12 +3,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Product } from './entities/product.entity';
 import { Prisma } from '@prisma/client';
 import { SearchService } from './search/search.service';
+import { CacheService } from './cache/cache.service';
 
 @Injectable()
 export class AppService {
   constructor(
     private prisma: PrismaService,
     private readonly searchService: SearchService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async findAll(params: {
@@ -19,6 +21,17 @@ export class AppService {
     orderBy?: Prisma.productsOrderByWithRelationInput;
     searchTerm?: string;
   }): Promise<{ products: any; total: number }> {
+
+    const cacheKey = 'products_list'; // Unique cache key
+    const cachedData = await this.cacheService.getProductCache(cacheKey);
+
+    if (cachedData) {
+      console.log('Returning data from cache');
+      return cachedData; // Return cached data
+    }
+
+    console.log('Fetching data from database');
+
     const { skip, take, cursor, where, orderBy, searchTerm } = params;
 
     const enhancedWhere: Prisma.productsWhereInput = {
@@ -55,6 +68,9 @@ export class AppService {
     const total = await this.prisma.products.count({
       where: enhancedWhere,
     });
+
+    // Cache the result for 1 hour (3600 seconds)
+    await this.cacheService.setProductCache(cacheKey, { products, total }, 3600);
   
     return { products, total };
   }

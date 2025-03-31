@@ -6,6 +6,8 @@ import { ShopsModule } from './shops/shops.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ConfigModule } from '@nestjs/config';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { SearchModule } from './search/search.module';
+import { CacheService } from './cache/cache.service';
 
 @Module({
   imports: [
@@ -13,9 +15,10 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
     ShopsModule,
     CategoriesModule,
     ElasticsearchModule,
+    SearchModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, CacheService],
 })
 export class AppModule {}
