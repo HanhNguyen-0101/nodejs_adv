@@ -1,5 +1,5 @@
 # Use Node.js base image
-FROM node:14
+FROM node:19
 
 # Set working directory
 WORKDIR /root/service_user

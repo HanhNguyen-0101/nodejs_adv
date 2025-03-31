@@ -9,6 +9,7 @@ export class SearchService {
   async indexProduct(product: any) {
     return this.elasticsearchService.index({
       index: 'products',
+      id: product.product_id,
       body: product,
     });
   }

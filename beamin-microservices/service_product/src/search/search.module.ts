@@ -5,9 +5,12 @@ import { SearchService } from './search.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(), // Load environment variables
+    ConfigModule.forRoot(), // Load this first
     ElasticsearchModule.register({
-      node: process.env.ELASTICSEARCH_NODE || 'http://localhost:9200', // Elasticsearch URL
+      node: process.env.ELASTICSEARCH_NODE || 'http://localhost:9200',
+      maxRetries: 5,
+      requestTimeout: 60000,
+      sniffOnStart: true,
     }),
   ],
   providers: [SearchService],
