@@ -1,0 +1,74 @@
+{
+    "products": [
+      {
+        "id": 1,
+        "name": "iPhone 13",
+        "description": "Latest Apple smartphone with A15 Bionic chip and dual cameras.",
+        "price": 999.99,
+        "stock": 50,
+        "madeIn": "USA",
+        "rating": 5,
+        "discount": 100.00,
+        "image": "http://example.com/iphone13.jpg",
+        "maxDeliveryDay": 5,
+        "shopId": 1,
+        "categoryId": 1
+      },
+      {
+        "id": 2,
+        "name": "Samsung Galaxy S22",
+        "description": "Samsung flagship phone with dynamic AMOLED display.",
+        "price": 899.99,
+        "stock": 80,
+        "madeIn": "South Korea",
+        "rating": 5,
+        "discount": 150.00,
+        "image": "http://example.com/galaxys22.jpg",
+        "maxDeliveryDay": 6,
+        "shopId": 2,
+        "categoryId": 1
+      },
+      {
+        "id": 3,
+        "name": "Sony WH-1000XM5",
+        "description": "Noise-canceling wireless headphones with premium sound quality.",
+        "price": 349.99,
+        "stock": 120,
+        "madeIn": "Japan",
+        "rating": 5,
+        "discount": 50.00,
+        "image": "http://example.com/sonywh1000xm5.jpg",
+        "maxDeliveryDay": 7,
+        "shopId": 3,
+        "categoryId": 1
+      },
+      {
+        "id": 4,
+        "name": "Dyson Airwrap",
+        "description": "Versatile hair styler with innovative heat control technology.",
+        "price": 549.99,
+        "stock": 30,
+        "madeIn": "UK",
+        "rating": 4,
+        "discount": 70.00,
+        "image": "http://example.com/dysonairwrap.jpg",
+        "maxDeliveryDay": 4,
+        "shopId": 4,
+        "categoryId": 2
+      },
+      {
+        "id": 5,
+        "name": "Adidas Ultraboost",
+        "description": "Comfortable running shoes with responsive cushioning.",
+        "price": 199.99,
+        "stock": 100,
+        "madeIn": "Germany",
+        "rating": 4,
+        "discount": 20.00,
+        "image": "http://example.com/adidasultraboost.jpg",
+        "maxDeliveryDay": 3,
+        "shopId": 5,
+        "categoryId": 3
+      }
+    ]
+  }

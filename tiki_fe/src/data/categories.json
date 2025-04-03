@@ -1,0 +1,9 @@
+{
+    "categories": [
+      { "id": 1, "name": "Electronics", "description": "Devices and gadgets including phones, laptops, and accessories." },
+      { "id": 2, "name": "Home Appliances", "description": "Products like refrigerators, washing machines, and air conditioners." },
+      { "id": 3, "name": "Fashion", "description": "Clothing, footwear, and accessories for men, women, and kids." },
+      { "id": 4, "name": "Beauty & Health", "description": "Skincare, haircare, makeup, and wellness products." },
+      { "id": 5, "name": "Sports & Outdoors", "description": "Equipment and apparel for sports, fitness, and outdoor activities." }
+    ]
+  }

@@ -1,0 +1,9 @@
+{
+    "productCoupons": [
+      { "productId": 1, "couponId": 1 },
+      { "productId": 2, "couponId": 2 },
+      { "productId": 3, "couponId": 3 },
+      { "productId": 4, "couponId": 4 },
+      { "productId": 5, "couponId": 5 }
+    ]
+  }
