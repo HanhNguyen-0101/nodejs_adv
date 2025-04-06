@@ -3,7 +3,18 @@ import { fetchData, postData } from './apiFunctions';
 // Example usage of reusable API calls
 
 export const getUsers = () => fetchData<any[]>('/users');
-export const getProducts = () => fetchData<any[]>('/products');
+export const getProducts = (p0?: {
+  filter: { categoryId: number; tagId: number };
+  paging: { skip: number; take: number };
+}) => fetchData<any[]>('/products', p0);
+export const getCategories = () => fetchData<any[]>('/categories');
+export const getTags = () => fetchData<any[]>('/tags');
+
+export const getProduct = (slug: string) => fetchData<any>(`/products/${slug}`);
 
 export const createOrder = (orderData: any) =>
   postData<typeof orderData, any>('/orders', orderData);
+
+export const login = (data: any) => postData<typeof data, any>('/login', data);
+export const register = (data: any) =>
+  postData<typeof data, any>('/register', data);

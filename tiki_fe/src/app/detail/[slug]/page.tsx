@@ -1,7 +1,12 @@
 'use client';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import moment from 'moment';
+import 'moment/locale/vi';
 import Image from 'next/image';
-import { CheckIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
+import {
+  CheckIcon,
+  TagIcon,
+} from '@heroicons/react/20/solid';
 
 import {
   TruckIcon,
@@ -10,42 +15,88 @@ import {
   ReceiptRefundIcon,
   CubeIcon,
 } from '@heroicons/react/24/outline';
-import { Input, InputRef, Rate, Tooltip } from 'antd';
+import { Input, Rate, Tag, Tooltip } from 'antd';
 import { formatCurrency } from '@/utils';
 import { SliderBanner } from '@/components/home';
 import { ListProduct } from '@/components/shared';
-import products from '@/data/products.json';
+import productsData from '@/data/products_1.json';
 import { CardProduct } from '@/components/shared/CardProduct';
+import { useDispatch, useSelector } from 'react-redux';
+import { hideLoading, showLoading } from '@/store/loadingSlice';
+import { getProduct, getProducts } from '@/axios/apiService';
+import { RootState } from '@/store';
+import { banners } from '@/constants';
 
 export default function Page({ params }: { params: { slug: string } }) {
-  const [image, setImage] = useState<string>('/products/belt-1.png');
-  const inputRef = useRef<InputRef>(null);
+  const dispatch = useDispatch();
+  moment.locale('vi');
+  const { user } = useSelector((state: RootState) => state.user);
+
+  const [product, setProduct] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [image, setImage] = useState<string>('');
+  const [quantity, setQuantity] = useState<number>(1);
+  const [coupon, setCoupon] = useState(null);
+
+  useEffect(() => {
+    getProductDetail();
+    getProductData();
+  }, []);
+
+  const getProductDetail = async () => {
+    dispatch(showLoading());
+    try {
+      // const productRes = await getProduct(params.slug);
+      const productRes = productsData.products[4];
+      setProduct(productRes);
+      setImage(productRes.image);
+    } catch (error) {
+      console.error('Error submitting data', error);
+      throw error;
+    }
+    dispatch(hideLoading());
+  };
+
+  const getProductData = async () => {
+    dispatch(showLoading());
+    try {
+      // const productsResponse = await getProducts();
+      // const productRes = [...productsResponse?.products];
+      // productRes.filter(i => i.categoryId == product?.categoryId);
+      const productsRes = productsData.products;
+      setProducts(productsRes);
+    } catch (error) {}
+    dispatch(hideLoading());
+  };
+
+  const handleInputChange = (e: any) => {
+    e.preventDefault();
+    setQuantity(+e.target.value);
+  };
+
   const handlePrice = (type: string) => {
     switch (type) {
       case '+': {
-        if (inputRef.current?.input) {
-          inputRef.current.input.value = (
-            parseInt(inputRef.current.input.value) + 1
-          ).toString();
-        }
-
+        setQuantity((prev) => prev + 1);
         break;
       }
       case '-': {
-        if (inputRef.current?.input) {
-          if (parseInt(inputRef.current.input.value) <= 1) return;
-          inputRef.current.input.value = (
-            parseInt(inputRef.current.input.value) - 1
-          ).toString();
-          console.log('minus');
-        }
-
+        setQuantity((prev) => (prev > 1 ? prev - 1 : prev));
         break;
       }
       default:
         console.log('default');
     }
   };
+
+  const handleCouponChange = (coupon: any) => {
+    setCoupon(coupon);
+  };
+
+  const handleBuyNow = () => {};
+  const handelAddToCard = () => {};
+
+  console.log('------------', product, products);
   return (
     <div className='flex flex-row mb-5 gap-6 w-[90%]'>
       <div className='flex flex-col w-[27%] bg-white p-4 rounded-md sticky h-fit top-5'>
@@ -58,219 +109,144 @@ export default function Page({ params }: { params: { slug: string } }) {
           unoptimized
         />
         <div className='flex flex-row gap-2 mt-2'>
-          <Image
-            className='border-gray-100 border p-1 rounded-md '
-            src='/products/belt-1.png '
-            width={47}
-            height={47}
-            onMouseEnter={() => {
-              setImage('/products/belt-1.png');
-            }}
-            alt='Product'
-            unoptimized
-          />
-
-          <Image
-            className='border-gray-100 border p-1 rounded-md '
-            src='/products/belt-2.png'
-            onMouseEnter={() => {
-              setImage('/products/belt-2.png');
-            }}
-            width={47}
-            height={47}
-            alt='Product'
-            unoptimized
-          />
-          <Image
-            className='border-gray-100 border p-1 rounded-md '
-            src='/products/belt-3.png'
-            onMouseEnter={() => {
-              setImage('/products/belt-3.png');
-            }}
-            width={47}
-            height={47}
-            alt='Product'
-            unoptimized
-          />
-          <Image
-            className='border-gray-100 border p-1 rounded-md '
-            src='/products/belt-4.png'
-            onMouseEnter={() => {
-              setImage('/products/belt-4.png');
-            }}
-            width={47}
-            height={47}
-            alt='Product'
-            unoptimized
-          />
-          <Image
-            className='border-gray-100 border p-1 rounded-md '
-            src='/products/belt-1.png'
-            onMouseEnter={() => {
-              setImage('/products/belt-1.png');
-            }}
-            width={47}
-            height={47}
-            alt='Product'
-            unoptimized
-          />
-        </div>
-        <hr className='my-3' />
-        <div className='flex flex-row justify-between items-center'>
-          <div className='flex flex-row items-center gap-2 '>
-            <Image src='/ai.png' width={26} height={26} alt='Tiki' />
-            <span className='text-gray-500 text-sm'>Xem thêm</span>
-            <span className='text-sm'> Ưu điểm & lưu ý của sản phẩm </span>
-          </div>
-          <ChevronRightIcon className='size-5' />
+          {product?.images?.map((i: string) => {
+            return (
+              <Image
+                key={i}
+                className='border-gray-100 border p-1 rounded-md '
+                src={`/${i}`}
+                width={47}
+                height={47}
+                onMouseEnter={() => {
+                  setImage(`/${i}`);
+                }}
+                alt='Product'
+                unoptimized
+              />
+            );
+          })}
         </div>
       </div>
       <div className='w-[40%] flex flex-col gap-4'>
         <div className='bg-white p-3 rounded-lg h-fit'>
           <div className='flex flex-row gap-2 items-center'>
-            <Image
-              src='/top-deal-1.png'
-              width={110}
-              height={20}
-              alt='Product'
-              unoptimized
-            />
-            <Image
-              src='/chinh-hang.png'
-              width={120}
-              height={20}
-              alt='Product'
-              unoptimized
-            />
-            <span className='text-sm'>
-              Thương hiệu: <span className='text-blue-500'>Nutushop</span>
+            {product?.shops.official && (
+              <Image
+                src='/chinh-hang.png'
+                width={120}
+                height={20}
+                alt='Product'
+                unoptimized
+              />
+            )}
+            <span className='text-sm flex-1 text-right'>
+              Thương hiệu:{' '}
+              <span className='text-blue-500'>{product?.shops.name}</span>
             </span>
           </div>
+          {product?.tags && product?.tags.length && (
+            <div className='my-3 text-right'>
+              {product?.tags.map((i) => {
+                return (
+                  <Tag key={i.id} color='red' className='w-fit font-bold'>
+                    <TagIcon className='h-4 w-3 inline-block' /> {i.name}
+                  </Tag>
+                );
+              })}
+            </div>
+          )}
           <span className='font-medium text-2xl mt-2 inline-block'>
-            Thắt lưng nam dây nịt nam chất liệu da bò thật khóa tự động hàng
-            hiệu cao cấp NT302 - Nutushop
+            {product?.name}
           </span>
           <div className='flex flex-row items-center gap-2 mt-2'>
-            <span className='text-md font-medium'>4.8</span>
-            <Rate defaultValue={5} allowHalf disabled className='text-[16px]' />
-            <span className='text-gray-500'>(37)</span>
-            <span className='text-gray-300 text-xs'>|</span>
-            <span className='text-gray-500'>Đã bán 112</span>
+            <span className='text-md font-medium'>{product?.rating}</span>
+            <Rate
+              value={product?.rating}
+              allowHalf
+              disabled
+              className='text-[16px]'
+            />
           </div>
           <div>
             <span className='font-semibold text-2xl mt-2 inline-block'>
-              {formatCurrency('vi-VN', 'VND', 320000)}
+              {formatCurrency('us-US', 'USD', product?.price)}
             </span>
-            <sup>₫</sup>
           </div>
-          <div className='border border-gray-200 rounded-lg p-2 mt-2 flex flex-col'>
-            <span>Giá sau khuyến mãi:</span>
-            <span className='text-red-500 text-3xl font-semibold mb-2 inline-block'>
-              {formatCurrency('vi-VN', 'VND', 313000)}
-              <sup>₫</sup>
-            </span>
-            <div className='flex flex-row items-center gap-2'>
-              <CheckIcon className='size-4 text-blue-500' />
-              <span className='font-medium'>
-                Giảm {formatCurrency('vi-VN', 'VND', 6400)}
-                <sup>₫</sup>
-                <span className='ml-1 text-gray-500 font-normal'>
-                  từ coupon của Tiki
-                </span>
+          {product?.discount && (
+            <div className='border border-gray-200 rounded-lg p-2 mt-2 flex flex-col'>
+              <span>Giá sau khuyến mãi:</span>
+              <span className='text-red-500 text-3xl font-semibold mb-2 inline-block'>
+                {formatCurrency(
+                  'us-US',
+                  'USD',
+                  product?.price - product?.discount,
+                )}
               </span>
+              <div className='flex flex-row items-center gap-2'>
+                <CheckIcon className='size-4 text-blue-500' />
+                <span className='font-medium'>
+                  Giảm {formatCurrency('us-US', 'USD', product?.discount)}
+                  <span className='ml-1 text-gray-500 font-normal'>
+                    từ coupon của Tiki
+                  </span>
+                </span>
+              </div>
+              <div className='text-sm my-2'>Khuyến mãi có thể hết sớm</div>
             </div>
-            <div className='text-sm my-2'>Khuyến mãi có thể hết sớm</div>
-          </div>
+          )}
         </div>
         <div className='bg-white p-4 rounded-lg h-fit'>
           <span className='text-lg font-semibold block mb-2'>
             Thông tin vận chuyển
           </span>
-          <span className='mb-4'>
-            Giao đến Q. Bình Tân, P. An Lạc A, Hồ Chí Minh
-          </span>
+          {user && <span className='mb-4'>{user?.address}</span>}
           <div className='flex flex-row items-center gap-2 mt-3'>
             <TruckIcon className='size-6 text-gray-500' />
-            <span className=' text-md font-medium'>Giao Thứ Sáu</span>
-          </div>
-          <span className='mb-4 block'>
-            Trước 19h, 12/07:{' '}
-            <span className='mr-2'>
-              {formatCurrency('vi-VN', 'VND', 8000)}
-              <sup>₫</sup>
+            <span className=' text-md font-medium'>
+              Giao{' '}
+              <span className='capitalize'>
+                {moment().add(product?.maxDeliveryDay, 'days').format('dddd')}: 
+              </span>
             </span>
-            <span className='text-gray-500 line-through'>
-              {formatCurrency('vi-VN', 'VND', 23000)}
-              <sup>₫</sup>
+            <span className=''>
+              Trước{' '}
+              {moment()
+                .add(product?.maxDeliveryDay, 'days')
+                .format('HH[h], DD/MM')}
             </span>
-          </span>
-        </div>
-        <div className='bg-white p-4 rounded-lg h-fit'>
-          <span className='text-lg font-semibold block mb-2'>Ưu đãi khác</span>
-          <div className='flex flex-row justify-between'>
-            <span>10 Mã giảm giá</span>
-            <div className='flex flex-row gap-3 items-center text-blue-600 font-medium'>
-              <span className='border rounded-lg border-gray-200 p-1 px-2'>
-                Giảm 70K
-              </span>
-              <span className='border rounded-lg border-gray-200 p-1 px-2'>
-                Giảm 65K
-              </span>
-              <ChevronRightIcon className='size-7 text-gray-500' />
-            </div>
           </div>
         </div>
-        <div className='bg-white p-4 rounded-lg h-fit'>
-          <span className='text-lg font-semibold block mb-2'>
-            Dịch vụ bổ sung
-          </span>
-
-          <div className='flex flex-row justify-between items-center'>
-            <div className='gap-2 flex flex-row items-center'>
-              <Image
-                src='/tiki-card.png'
-                width={44}
-                height={44}
-                alt='Tiki'
-                unoptimized
-              />
-              <span className='text-md font-medium'>
-                Ưu đãi đến 600k với thẻ TikiCard
-              </span>
+        {product?.coupons && product?.coupons?.length && (
+          <div className='bg-white p-4 rounded-lg h-fit'>
+            <span className='text-lg font-semibold block mb-2'>
+              Ưu đãi khác
+            </span>
+            <div className='flex flex-col justify-between'>
+              <div className='mb-2'>{product?.coupons?.length} Mã giảm giá</div>
+              <div className='flex flex-row gap-3 items-center text-blue-600 font-medium'>
+                {product?.coupons.map((i: any) => {
+                  return (
+                    <button
+                      key={i.id}
+                      onClick={() => handleCouponChange(i)}
+                      className={`${coupon?.id == i.id ? 'bg-blue-600 text-white' : ''} border rounded-lg border-gray-200 p-1 px-2`}
+                    >
+                      {i.code}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <span className='text-blue-600 cursor-pointer'>Đăng ký</span>
           </div>
-
-          <div className='flex flex-row justify-between items-center mt-3'>
-            <div className='gap-2 flex flex-row items-center'>
-              <Image
-                className='rounded-2xl'
-                src='/paylater.png'
-                width={44}
-                height={44}
-                alt='Tiki'
-                unoptimized
-              />
-              <span className='text-md font-medium'>Mua trước trả sau</span>
-            </div>
-            <span className='text-blue-600 cursor-pointer'>Đăng ký</span>
-          </div>
-        </div>
+        )}
         <div className='bg-white p-4 rounded-lg h-fit'>
           <span className='text-lg font-semibold block mb-2'>
             Sản phẩm liên quan
           </span>
-          <div className='flex flex-row flex-wrap gap-3'>
-            {products.slice(0, 10).map((product: any, index) => (
-              <CardProduct className='w-[23%]' key={index} data={product} />
-            ))}
+          <div className='gap-3 h-fit overflow-hidden'>
+            <ListProduct data={products} cardStyle='w-[50%]' />
           </div>
         </div>
-        <div className='bg-white p-4 rounded-lg h-fit overflow-hidden'>
-          <span className='text-lg font-semibold block mb-2'>Top deals</span>
-          <ListProduct data={products.slice(0, 7)} cardStyle='w-[23%]' />
-        </div>
-
         <div className='bg-white p-4 rounded-lg h-fit'>
           <span className='text-lg font-semibold block mb-2'>
             Thông tin bảo hành
@@ -374,27 +350,27 @@ export default function Page({ params }: { params: { slug: string } }) {
       <div className='w-[23%] flex flex-col'>
         <div className='p-4 bg-white flex flex-col rounded-lg'>
           <div className='flex flex-row gap-2'>
-            <Image src='/shop.png' width={50} height={50} alt='Tiki' />
             <div>
-              <span className='font-medium'>Nutushop</span>
+              <span className='font-medium'>{product?.shops.name}</span>
               <div className='flex flex-row items-center gap-2'>
-                <Image
-                  src='/official.png'
-                  width={72}
-                  height={20}
-                  alt='Tiki'
-                  unoptimized
-                />
+                {product?.shops.official && (
+                  <Image
+                    src='/official.png'
+                    width={72}
+                    height={20}
+                    alt='Tiki'
+                    unoptimized
+                  />
+                )}
                 <span className='text-xs text-gray-200 font-bold'>|</span>
-                <span>4.5</span>
+                <span>{product?.shops.rating}</span>
                 <Rate
                   count={1}
-                  defaultValue={4.5}
+                  value={product?.shops.rating}
                   allowHalf
                   disabled
                   className='text-[17px]'
                 />
-                <span className='text-gray-500'>(3.3k+ đánh giá)</span>
               </div>
             </div>
           </div>
@@ -411,10 +387,10 @@ export default function Page({ params }: { params: { slug: string } }) {
                 -
               </div>
               <Input
-                ref={inputRef}
+                onChange={handleInputChange}
                 className='w-10 h-8 text-center'
                 type='number'
-                defaultValue={1}
+                value={quantity}
               />
 
               <div
@@ -432,8 +408,11 @@ export default function Page({ params }: { params: { slug: string } }) {
             </span>
             <div className='text-3xl mt-3 font-semibold flex flex-row items-center'>
               <span>
-                {formatCurrency('vi-VN', 'VND', 313000)}
-                <sup>₫</sup>
+                {formatCurrency(
+                  'us-US',
+                  'USD',
+                  (product?.price - product?.discount) * quantity,
+                )}
               </span>
 
               <Tooltip
@@ -445,8 +424,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                       <div className='flex flex-row gap-2 items-center text-lg'>
                         <CheckIcon className='size-4 text-blue-500' />
                         <div className='text-md font-medium'>
-                          {formatCurrency('vi-VN', 'VND', 6400)}
-                          <sup>₫</sup>
+                          {formatCurrency('us-US', 'USD', product?.discount)}
                         </div>
                       </div>
                       <span className='text-gray-500 text-md'>
@@ -463,54 +441,37 @@ export default function Page({ params }: { params: { slug: string } }) {
               </Tooltip>
             </div>
             <div>
-              <button className='bg-red-500 text-white rounded-md w-full h-10 mt-3'>
+              <button
+                onClick={handleBuyNow}
+                className='bg-red-500 text-white rounded-md w-full h-10 mt-3'
+              >
                 Mua ngay
               </button>
-              <button className='bg-white text-blue-500 border border-blue-500 rounded-md w-full h-10 mt-3'>
+              <button
+                onClick={handelAddToCard}
+                className='bg-white text-blue-500 border border-blue-500 rounded-md w-full h-10 mt-3'
+              >
                 Thêm vào giỏ
-              </button>
-              <button className='bg-white text-blue-500 border border-blue-500 rounded-md w-full h-10 mt-3'>
-                Mua trước trả sau
               </button>
             </div>
           </div>
         </div>
-        <SliderBanner className='h-fit mt-5'>
-          <div className='w-full h-32 flex flex-row shrink-0 gap-3'>
-            <div className='w-full h-32 relative'>
-              <Image
-                className='rounded-lg'
-                src='/banner-d-1.png'
-                fill
-                unoptimized
-                alt=''
-              />
-            </div>
-          </div>
-
-          <div className='w-full h-32 flex flex-row shrink-0 gap-3'>
-            <div className='w-full h-32 relative'>
-              <Image
-                className='rounded-lg'
-                src='/banner-d-2.png'
-                fill
-                unoptimized
-                alt=''
-              />
-            </div>
-          </div>
-
-          <div className='w-full h-32 flex flex-row shrink-0 gap-3'>
-            <div className='w-full h-32 relative'>
-              <Image
-                className='rounded-lg'
-                src='/banner-d-1.png'
-                fill
-                unoptimized
-                alt=''
-              />
-            </div>
-          </div>
+        <SliderBanner className='h-fit mt-5 w-full'>
+          {banners.map((i) => {
+            return (
+              <div key={i.src1} className='w-full flex flex-row shrink-0 gap-3'>
+                <div className='w-full h-32 relative'>
+                  <Image
+                    className='rounded-lg'
+                    src={`/${i.src1}`}
+                    fill
+                    unoptimized
+                    alt=''
+                  />
+                </div>
+              </div>
+            );
+          })}
         </SliderBanner>
       </div>
     </div>

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { InformationCircleIcon, TicketIcon } from '@heroicons/react/24/outline';
 import { formatCurrency } from '@/utils';
 import { SliderBanner } from '@/components/home';
+import Link from 'next/link';
 
 export default function Page() {
   return (
@@ -196,9 +197,12 @@ export default function Page() {
                   -{formatCurrency('vi-VN', 'VND', 1187000)}₫
                 </span>
               </div>
-              <div className='flex items-center justify-center text-white bg-red-500 p-2 rounded-md'>
+              <Link
+                href='/order'
+                className='flex items-center justify-center text-white bg-red-500 p-2 rounded-md'
+              >
                 Đặt hàng
-              </div>
+              </Link>
             </div>
           </div>
         </div>

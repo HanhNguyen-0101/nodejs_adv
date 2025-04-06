@@ -61,14 +61,54 @@
         "name": "Adidas Ultraboost",
         "description": "Comfortable running shoes with responsive cushioning.",
         "price": 199.99,
-        "stock": 100,
+        "stock": 0,
         "madeIn": "Germany",
         "rating": 4,
         "discount": 20.00,
-        "image": "http://example.com/adidasultraboost.jpg",
+        "image": "/products/belt-1.png",
         "maxDeliveryDay": 3,
         "shopId": 5,
-        "categoryId": 3
+        "categoryId": 3,
+        "images": [
+          "products/belt-1.png",
+          "products/belt-2.png",
+          "products/belt-3.png",
+          "products/belt-4.png"
+        ],
+        "shops": {
+          "id": 3,
+          "name": "Da Nang Tech",
+          "official": true,
+          "rating": 3,
+          "location": "789 Vo Nguyen Giap, Da Nang",
+          "createdAt": "2025-03-30T11:30:00Z"
+        },
+        "categories": { "img": "thoi-trang-nu.webp", "id": 3, "name": "Fashion", "description": "Clothing, footwear, and accessories for men, women, and kids." },
+        "tags": [
+          { "id": 1, "name": "Electronics" },
+          { "id": 5, "name": "Sports & Outdoors" }
+        ],
+        "coupons": [
+          {
+            "id": 1,
+            "code": "WELCOME10",
+            "discount": 10.00,
+            "expirationDate": "2025-05-01T11:30:00Z"
+          },
+          {
+            "id": 2,
+            "code": "SPRING15",
+            "discount": 15.00,
+            "expirationDate": "2025-06-01T11:30:00Z"
+          },
+          {
+            "id": 3,
+            "code": "SUMMER20",
+            "discount": 20.00,
+            "expirationDate": "2025-07-01T11:30:00Z"
+          }
+        ]
       }
-    ]
+    ],
+    "total": 20
   }

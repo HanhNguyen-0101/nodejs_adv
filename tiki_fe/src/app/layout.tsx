@@ -11,10 +11,6 @@ import AlertMessage from '@/components/utils/AlertMessage';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// export const metadata: Metadata = {
-//   title: 'Tiki - Mua hàng giá tốt, hàng chuẩn, ship nhanh',
-// };
-
 const RootLayout: React.FC = ({ children }: any) => {
   return (
     <html lang='en'>

@@ -1,29 +1,24 @@
 import React, { AllHTMLAttributes } from 'react';
 import Image from 'next/image';
-import { Rate } from 'antd';
+import { Rate, Tag } from 'antd';
 import { formatCurrency } from '@/utils';
 import Link from 'next/link';
+import { TagIcon } from '@heroicons/react/20/solid';
 
 type PropsType = {
   data: {
     id: string;
     image: string;
     name: string;
-    title: string;
     price: number;
-    star?: number;
-    isTopDeal?: boolean;
-    isAuthentic?: boolean;
+    rating?: number;
+    shops: { official?: boolean };
+    tags: Array<any>[];
+    stock: number;
 
-    sale?: {
-      percent: number;
-    };
-    shipping: {
-      type: 'fast' | 'normal' | string;
-      date: string;
-    };
-    isGlobal?: boolean;
+    discount?: number;
     madeIn?: string;
+    maxDeliveryDay?: number;
   };
 };
 
@@ -34,89 +29,92 @@ export const CardProduct = ({
   const {
     id,
     image,
-    title,
+    name,
     price,
-    star,
-    isTopDeal,
-    isAuthentic,
-    sale,
-    shipping,
-    isGlobal,
+    rating,
+    tags,
+    shops,
+    discount,
     madeIn,
+    stock,
+    maxDeliveryDay,
   } = data;
+
+  const shipping = {
+    type: (maxDeliveryDay || 0) < 5 ? 'fast' : 'normal',
+    date: maxDeliveryDay,
+  };
   return (
     <Link
       href={`/detail/${id}`}
-      className={`w-[16%]  border bg-white border-gray-200 pb-1 rounded-md flex flex-col gap-1 hover:shadow-[0px_0px_20px_0px_rgba(0,0,0,0.1)] cursor-pointer flex-shrink-0 ${rest.className}`}
+      className={`w-[16%] border bg-white border-gray-200 pb-1 rounded-md flex flex-col gap-1 hover:shadow-[0px_0px_20px_0px_rgba(0,0,0,0.1)] cursor-pointer flex-shrink-0 ${rest.className}`}
     >
       <Image
         src={image}
         width={200}
         height={200}
-        alt={title}
+        alt={name}
         unoptimized
         className='rounded-tl-md w-full rounded-tr-md'
       />
       <div className='flex flex-col gap-1'>
         <div className='flex flex-col gap-1 min-h-40'>
           <div className='flex flex-col gap-1 mt-0.5 ml-1.5 min-h-12'>
-            {isTopDeal && (
-              <Image
-                src={'/top-deal-1.png'}
-                width={80}
-                height={20}
-                alt={title}
-                unoptimized
-              />
-            )}
-            {isAuthentic && (
+            {shops?.official && (
               <Image
                 src={'/chinh-hang.png'}
                 width={80}
                 height={20}
-                alt={title}
+                alt={name}
                 unoptimized
               />
             )}
+            {tags && tags.length && (
+              <div className='mt-1 mb-3'>
+                {tags.map((i) => {
+                  return (
+                    <Tag key={i.id} color='red' className='w-fit font-bold'>
+                      <TagIcon className='h-4 w-3 inline-block' /> {i.name}
+                    </Tag>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          <div className='text-xs leading-4 ml-1.5 max-h-8 h-20 line-clamp-2'>
-            {title}
+          <div className='text-xs leading-4 ml-1.5 max-h-8 line-clamp-2 font-bold'>
+            {name}
           </div>
           <Rate
             className='block text-[10px] ml-1.5 [&>li]:!me-0.5 text-yellow-400'
             allowHalf
             disabled
-            defaultValue={star}
+            defaultValue={rating}
           />
           <div className='ml-1.5'>
-            {sale ? (
+            {stock < 1 && (
+              <Tag color='#f50' className='w-fit font-bold'>
+                Out of Stock
+              </Tag>
+            )}
+            {discount ? (
               <>
                 <span className='text-[#ff424e] font-semibold'>
-                  {formatCurrency(
-                    'vi-VN',
-                    'VND',
-                    price - (price * sale.percent) / 100,
-                  )}
-
-                  <sup>₫</sup>
+                  {formatCurrency('us-US', 'USD', price - discount)}
                 </span>
 
                 <div className=''>
                   <div className='bg-gray-200 inline text-xs font-medium px-1 rounded-full w-fit text-black'>
-                    {sale.percent}%
+                    {formatCurrency('us-US', 'USD', discount)}
                   </div>
 
                   <div className='line-through text-gray-500 inline text-[11px] ml-1'>
-                    {formatCurrency('vi-VN', 'VND', price)}
-
-                    <sup>₫</sup>
+                    {formatCurrency('us-US', 'USD', price)}
                   </div>
                 </div>
               </>
             ) : (
               <span className='text-black font-semibold tracking-tight'>
-                {formatCurrency('vi-VN', 'VND', price)}
-                <sup>₫</sup>
+                {formatCurrency('us-US', 'USD', price)}
               </span>
             )}
           </div>
@@ -126,7 +124,6 @@ export const CardProduct = ({
         </div>
         <hr className='block w-[90%] self-center' />
 
-        {isGlobal && <span>Hàng quốc tế</span>}
         <div className='ml-0.5 text-[10px] text-gray-500 flex flex-row items-center justify-start gap-2 px-1 max-h-5'>
           {shipping.type === 'fast' ? (
             <>
@@ -137,7 +134,7 @@ export const CardProduct = ({
                 alt={'shipping'}
                 unoptimized
               />
-              <span>Giao siêu tốc {shipping.date}</span>
+              <span>Giao siêu tốc {shipping.date} day(s)</span>
             </>
           ) : (
             <>
@@ -149,7 +146,7 @@ export const CardProduct = ({
                 unoptimized
               />
               <span className='text-[10px] text-gray-500'>
-                Giao {shipping.date}
+                Giao {shipping.date} day(s)
               </span>
             </>
           )}

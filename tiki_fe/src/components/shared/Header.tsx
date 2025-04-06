@@ -1,7 +1,6 @@
 'use client';
 import Image from 'next/image';
 import React, { useRef, useState } from 'react';
-import { Input } from './Input';
 import {
   MagnifyingGlassIcon,
   HomeIcon,
@@ -11,26 +10,52 @@ import {
   TruckIcon,
   TagIcon,
   CurrencyDollarIcon,
+  ArrowLeftOnRectangleIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/20/solid';
-import { MapPinIcon, FaceSmileIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Modal } from 'antd';
+import { Button, Modal, Input } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { hideLoading, showLoading } from '@/store/loadingSlice';
+import { showAlert } from '@/store/alertSlice';
+import { login, register } from '@/axios/apiService';
+import { STATUS_CODE } from '@/store/constants';
+import { onClearUser, onSaveUser } from '@/store/userSlice';
 
+const initLoginValues = {
+  password: '',
+  phone: '',
+};
+const initRegisterValues = {
+  username: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  phone: '',
+  address: '',
+};
 export const Header = () => {
   const router = useRouter();
   const refSearch = useRef<any>();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.user);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loginStatus, setLoginStatus] = useState(true);
+  const [loginValues, setLoginValues] = useState(initLoginValues);
+  const [registerValues, setRegisterValues] = useState(initRegisterValues);
+  const [loginInvalid, setLoginInvalid] = useState(false);
+  const [registerInvalid, setRegisterInvalid] = useState(false);
 
   const showModal = () => {
     setIsModalOpen(true);
   };
-
   const handleOk = () => {
     setIsModalOpen(false);
   };
-
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -40,11 +65,120 @@ export const Header = () => {
 
     if (refSearch.current) refSearch.current.value = e.target.value;
   };
-
   const handleSearch = () => {
     console.log(refSearch.current.value);
     router.push(`/search?query=${refSearch.current.value}`);
   };
+
+  const handleLoginStatusChange = () => {
+    setLoginStatus((prev) => !prev);
+  };
+  const handleLogin = (e: any) => {
+    e.preventDefault();
+    if (
+      !loginInvalid &&
+      Object.values(loginValues).every((v) => v && v.trim())
+    ) {
+      onLogin();
+    } else {
+      setLoginInvalid(true);
+    }
+  };
+  const onLogin = async () => {
+    dispatch(showLoading());
+    try {
+      const response = await login(loginStatus);
+      if (response.status === STATUS_CODE.CREATE_SUCCESS) {
+        dispatch(
+          showAlert({
+            type: 'success',
+            message: 'Login is successfully!',
+          }),
+        );
+        dispatch(onSaveUser(response.data));
+        setIsModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Error submitting data', error);
+      dispatch(
+        showAlert({
+          type: 'error',
+          message: error?.response.data.message || error?.message,
+        }),
+      );
+    }
+    dispatch(hideLoading());
+  };
+  const handleRegister = (e: any) => {
+    e.preventDefault();
+    if (
+      !registerInvalid &&
+      Object.values(registerValues).every((v) => v && v.trim()) &&
+      registerValues.password === registerValues.confirmPassword
+    ) {
+      onRegister();
+    } else {
+      setRegisterInvalid(true);
+    }
+  };
+  const onRegister = async () => {
+    dispatch(showLoading());
+    try {
+      const response = register(registerValues);
+      if (response.status === STATUS_CODE.CREATE_SUCCESS) {
+        dispatch(
+          showAlert({
+            type: 'success',
+            message: 'Registration is successfully!',
+          }),
+        );
+        setLoginStatus(true);
+      }
+    } catch (error) {
+      console.error('Error submitting data', error);
+      dispatch(
+        showAlert({
+          type: 'error',
+          message: error?.response.data.message || error?.message,
+        }),
+      );
+    }
+    dispatch(hideLoading());
+  };
+  const handleLogout = () => {
+    dispatch(
+      showAlert({
+        type: "success",
+        message: "Logout is successfully!",
+      })
+    );
+    dispatch(onClearUser());
+    router.push("/");
+  }
+  const onChange = (e: any) => {
+    e.preventDefault();
+    const { name, value } = e.target;
+    if (loginStatus) {
+      setLoginInvalid(false);
+      setLoginValues({
+        ...loginValues,
+        [name]: value,
+      });
+      if (!value || !value.trim()) {
+        setLoginInvalid(true);
+      }
+    } else {
+      setRegisterInvalid(false);
+      setRegisterValues({
+        ...registerValues,
+        [name]: value,
+      });
+      if (!value || !value.trim()) {
+        setRegisterInvalid(true);
+      }
+    }
+  };
+  console.log('------Header', user);
   return (
     <div className='bg-white border-b border-gray-200'>
       <nav className='flex flex-row items-center h-fit gap-1 justify-center pt-3 border-b pb-2.5'>
@@ -93,17 +227,21 @@ export const Header = () => {
                 className='flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33] font-medium w-fit p-2 rounded text-sm items-center justify-center'
               >
                 <HomeIcon className='size-6 text-[#0560D9]' />
-                <span className='text-blue-500'>Trang chủ</span>
               </Link>
-              <div
-                onClick={() => {
-                  setIsModalOpen(true);
-                }}
-                className='relative flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33]  w-fit p-2 rounded text-sm items-center justify-center '
-              >
-                <FaceSmileIcon className='size-6 text-gray-500' />
-                <span className='text-gray-500'>Tài khoản</span>
-              </div>
+              {user ? (
+                <div onClick={handleLogout} className='ml-10 relative flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33] w-fit p-2 rounded text-sm items-center justify-center before:w-[1px] before:h-3/6 before:absolute before:bg-[#BFC4CC] before:-left-5'>
+                  <ArrowLeftOnRectangleIcon className='size-6 text-[#0560D9]' />
+                  <span className='text-[#0560D9]'>{user?.name}</span>
+                </div>
+              ) : (
+                <div
+                  onClick={showModal}
+                  className='ml-10 relative flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33] w-fit p-2 rounded text-sm items-center justify-center before:w-[1px] before:h-3/6 before:absolute before:bg-[#BFC4CC] before:-left-5'
+                >
+                  <ArrowRightOnRectangleIcon className='size-6 text-[#0560D9]' />
+                  <span className='text-[#0560D9]'>Đăng nhập</span>
+                </div>
+              )}
               <Link
                 href='/cart'
                 className='ml-10 relative flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33] w-fit p-2 rounded text-sm items-center justify-center before:w-[1px] before:h-3/6 before:absolute before:bg-[#BFC4CC] before:-left-5'
@@ -112,36 +250,13 @@ export const Header = () => {
               </Link>
             </div>
           </div>
-
-          <div className='flex flex-row justify-between mt-2.5'>
-            <div className='flex gap-3'>
-              <a className='text-gray-500 lowercase cursor-pointer text-sm'>
-                Điện gia dụng
-              </a>
-              <a className='text-gray-500 lowercase cursor-pointer text-sm'>
-                xe cộ
-              </a>
-              <a className='text-gray-500 lowercase cursor-pointer text-sm'>
-                khỏe đẹp
-              </a>
-              <a className='text-gray-500 lowercase cursor-pointer text-sm'>
-                nhà cửa
-              </a>
-              <a className='text-gray-500 lowercase cursor-pointer text-sm'>
-                sách
-              </a>
-              <a className='text-gray-500 lowercase cursor-pointer text-sm'>
-                thể thao
-              </a>
-            </div>
-            <div className='text-sm flex '>
+          {user && (
+            <div className='flex flex-row mt-2.5 text-sm justify-end'>
               <MapPinIcon className='size-5 text-gray-500' />
               <span className='text-gray-500 mr-1'>Giao đến:</span>
-              <span className='color-black underline'>
-                Q. Bình Tân, P. An Lạc A, Tp. Hồ Chí Minh
-              </span>
+              <span className='color-black underline'>{user?.address}</span>
             </div>
-          </div>
+          )}
           <div></div>
         </div>
       </nav>
@@ -195,47 +310,160 @@ export const Header = () => {
             </div>
 
             <div className='p-16 flex flex-col mb-5 w-[70%]'>
-              <div className='flex flex-col gap-5 mb-20'>
+              <div className='flex flex-col gap-5 mb-2'>
                 <span className='text-3xl font-semibold'>Xin chào,</span>
                 <span className='text-sm '>Đăng nhập hoặc Tạo tài khoản</span>
-                <input
-                  type='number'
-                  className='outline-none border-b border-blue-500 py-2 text-2xl w-full'
-                  placeholder='Số điện thoại'
-                />
-                <div className=' cursor-pointer bg-red-500 p-2 text-white rounded-md flex items-center justify-center text-xl'>
-                  Tiếp Tục
-                </div>
-                <span className='text-blue-500 cursor-pointer justify-self-center self-center'>
-                  Đăng nhập bằng email
-                </span>
+                {loginStatus ? (
+                  <form onSubmit={handleLogin} method='post'>
+                    <Input
+                      onChange={onChange}
+                      name='phone'
+                      value={loginValues.phone}
+                      type='tel'
+                      className='outline-none mt-4 hover:border-red-500 focus:border-red-500 py-2 text-xl w-full'
+                      placeholder='Số điện thoại'
+                    />
+                    {loginInvalid && !loginValues.phone && (
+                      <p className='text-red-500'>
+                        Please enter an valid value
+                      </p>
+                    )}
+                    <Input.Password
+                      onChange={onChange}
+                      name='password'
+                      value={loginValues.password}
+                      type='password'
+                      className='outline-none mt-4 hover:border-red-500 focus:border-red-500 py-2 text-xl w-full'
+                      placeholder='Password'
+                    />
+                    {loginInvalid && !loginValues.password && (
+                      <p className='text-red-500'>
+                        Please enter an valid value
+                      </p>
+                    )}
+                    <button
+                      type='submit'
+                      className='w-full bg-red-500 p-2 hover:bg-red-600 border-none my-5 text-white rounded-md text-xl'
+                    >
+                      Tiếp Tục
+                    </button>
+                    <div className='flex items-center justify-center gap-1 '>
+                      <span className='text-gray-600'>
+                        Bạn mới biết đến Tiki?
+                      </span>
+                      <Button
+                        htmlType='button'
+                        onClick={handleLoginStatusChange}
+                        className='text-blue-500 cursor-pointer justify-self-center self-center border-none p-0'
+                      >
+                        Đăng kí
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <form onSubmit={handleRegister} method='post'>
+                    <Input
+                      onChange={onChange}
+                      name='username'
+                      value={registerValues.username}
+                      type='text'
+                      className='outline-none mt-4 py-2 text-lg w-full'
+                      placeholder='Username'
+                    />
+                    {registerInvalid && !registerValues.username && (
+                      <p className='text-red-500'>
+                        Please enter an valid value
+                      </p>
+                    )}
+                    <Input
+                      onChange={onChange}
+                      name='phone'
+                      value={registerValues.phone}
+                      type='tel'
+                      className='outline-none mt-4 py-2 text-lg w-full'
+                      placeholder='Số điện thoại'
+                    />
+                    {registerInvalid && !registerValues.phone && (
+                      <p className='text-red-500'>
+                        Please enter an valid value
+                      </p>
+                    )}
+                    <Input.Password
+                      onChange={onChange}
+                      name='password'
+                      value={registerValues.password}
+                      type='password'
+                      className='outline-none mt-4 py-2 text-lg w-full'
+                      placeholder='Password'
+                    />
+                    {registerInvalid && !registerValues.password && (
+                      <p className='text-red-500'>
+                        Please enter an valid value
+                      </p>
+                    )}
+                    <Input.Password
+                      onChange={onChange}
+                      name='confirmPassword'
+                      value={registerValues.confirmPassword}
+                      type='password'
+                      className='outline-none mt-4 py-2 text-lg w-full'
+                      placeholder='Confirm password'
+                    />
+                    {registerInvalid && !registerValues.confirmPassword && (
+                      <p className='text-red-500'>
+                        Please enter an valid value
+                      </p>
+                    )}
+                    <Input
+                      onChange={onChange}
+                      name='email'
+                      value={registerValues.email}
+                      type='email'
+                      className='outline-none mt-4 py-2 text-lg w-full'
+                      placeholder='Email'
+                    />
+                    {registerInvalid && !registerValues.email && (
+                      <p className='text-red-500'>
+                        Please enter an valid value
+                      </p>
+                    )}
+                    <Input
+                      onChange={onChange}
+                      name='address'
+                      value={registerValues.address}
+                      type='text'
+                      className='outline-none mt-4 py-2 text-lg w-full'
+                      placeholder='Địa chỉ'
+                    />
+                    {registerInvalid && !registerValues.address && (
+                      <p className='text-red-500'>
+                        Please enter an valid value
+                      </p>
+                    )}
+                    <button
+                      type='submit'
+                      className='w-full bg-blue-500 p-2 hover:bg-blue-600 border-none my-5 text-white rounded-md text-xl'
+                    >
+                      Tạo tài khoản
+                    </button>
+                    <div className='flex items-center justify-center gap-1 '>
+                      <span className='text-gray-600'>
+                        Bạn đã đăng kí Tiki?
+                      </span>
+                      <Button
+                        htmlType='button'
+                        onClick={handleLoginStatusChange}
+                        className='text-blue-500 cursor-pointer justify-self-center self-center border-none p-0'
+                      >
+                        Đăng nhập
+                      </Button>
+                    </div>
+                  </form>
+                )}
               </div>
-              <div className='self-center w-full flex flex-col gap-3'>
-                <div className='flex flex-row gap-2 w-full items-center justify-center'>
-                  <div className='h-[1px] bg-gray-100 w-[20%]'></div>
-                  <div className='text-gray-500'>Hoặc tiếp tục bằng</div>
-                  <div className='h-[1px] bg-gray-100 w-[20%]'></div>
-                </div>
-                <div className='flex flex-row gap-3 justify-center'>
-                  <Image
-                    alt='gg'
-                    src='/gg.png'
-                    width={60}
-                    height={60}
-                    unoptimized
-                  />
-                  <Image
-                    alt='fb'
-                    src='/fb.png'
-                    width={60}
-                    height={60}
-                    unoptimized
-                  />
-                </div>
-                <span className='w-[85%] mt-5 text-xs text-gray-500'>
-                  Bằng việc tiếp tục, bạn đã đọc và đồng ý với điều khoản sử
-                  dụng và Chính sách bảo mật thông tin cá nhân của Tiki
-                </span>
+              <div className='w-[85%] mt-5 text-xs text-gray-500'>
+                Bằng việc tiếp tục, bạn đã đọc và đồng ý với điều khoản sử dụng
+                và Chính sách bảo mật thông tin cá nhân của Tiki
               </div>
             </div>
             <div className='bg-sky-100 w-[30%] rounded-lg'>

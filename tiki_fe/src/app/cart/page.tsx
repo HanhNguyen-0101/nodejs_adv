@@ -132,7 +132,7 @@ export default function Page() {
           </div>
         </div>
         <Link
-          href='/order'
+          href='/payment'
           className='bg-red-500 block mt-3 rounded-md text-white text-md py-3 text-center'
         >
           Mua hàng

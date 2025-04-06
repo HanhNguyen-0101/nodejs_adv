@@ -31,7 +31,7 @@ export const ListProduct = ({ data, cardStyle }: PropsType) => {
   const handleAction = (action: 'next' | 'prev') => {
     if (refContainer.current) {
       refContainer.current.style.transitionDuration = '400ms';
-      const length = Math.ceil(data.length / 6);
+      const length = Math.ceil(data?.length / 2);
 
       switch (action) {
         case 'prev': {
@@ -80,13 +80,13 @@ export const ListProduct = ({ data, cardStyle }: PropsType) => {
           transitionDuration: '400ms',
         }}
       >
-        {data.map((product: any) => (
+        {(data || []).map((product: any) => (
           <CardProduct data={product} key={product.id} className={cardStyle} />
         ))}
       </div>
 
-      {Math.ceil(data.length / 6) !== 1 &&
-        current !== Math.ceil(data.length / 6) && (
+      {Math.ceil(data?.length / 2) !== 1 &&
+        current !== Math.ceil(data?.length / 2) && (
           <div
             className='absolute right-5 invisible group-hover:visible cursor-pointer bg-white shadow shadow-gray-300 w-8 h-8 rounded-full  top-1/2 -translate-y-1/2 flex items-center justify-center'
             onClick={() => handleAction('next')}
