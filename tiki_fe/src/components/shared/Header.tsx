@@ -26,6 +26,7 @@ import { onClearUser, onSaveUser } from '@/store/userSlice';
 import { PAGING, STATUS_CODE } from '@/constants';
 import { hideModal, showModal } from '@/store/modalSlice';
 import { Input as InputCustom } from '@/components/shared';
+import users from '@/data/users.json';
 
 const initLoginValues = {
   password: '',
@@ -45,7 +46,9 @@ export const Header = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.user);
   const { carts } = useSelector((state: RootState) => state.cart);
-  const { isModalOpen, func } = useSelector((state: RootState) => state.modal);
+  const { isModalOpen, func, template } = useSelector(
+    (state: RootState) => state.modal,
+  );
 
   const [loginStatus, setLoginStatus] = useState(true);
   const [loginValues, setLoginValues] = useState(initLoginValues);
@@ -74,32 +77,34 @@ export const Header = () => {
     }
   };
   const onLogin = async () => {
-    dispatch(showLoading());
-    try {
-      const response = await login(loginStatus);
-      if (response.status === STATUS_CODE.CREATE_SUCCESS) {
-        dispatch(
-          showAlert({
-            type: 'success',
-            message: 'Login is successfully!',
-          }),
-        );
-        dispatch(onSaveUser(response.data));
-        dispatch(hideModal());
-        if (typeof func == 'function') {
-          func();
-        }
-      }
-    } catch (error) {
-      console.error('Error submitting data', error);
-      dispatch(
-        showAlert({
-          type: 'error',
-          message: error?.response.data.message || error?.message,
-        }),
-      );
-    }
-    dispatch(hideLoading());
+    const user = users.users[2];
+    dispatch(onSaveUser(user));
+    // dispatch(showLoading());
+    // try {
+    //   const response = await login(loginStatus);
+    //   if (response.status === STATUS_CODE.CREATE_SUCCESS) {
+    //     dispatch(
+    //       showAlert({
+    //         type: 'success',
+    //         message: 'Login is successfully!',
+    //       }),
+    //     );
+    //     dispatch(onSaveUser(response.data));
+    //     dispatch(hideModal());
+    //     if (typeof func == 'function') {
+    //       func();
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.error('Error submitting data', error);
+    //   dispatch(
+    //     showAlert({
+    //       type: 'error',
+    //       message: error?.response.data.message || error?.message,
+    //     }),
+    //   );
+    // }
+    // dispatch(hideLoading());
   };
   const handleRegister = (e: any) => {
     e.preventDefault();
@@ -312,157 +317,159 @@ export const Header = () => {
             </div>
 
             <div className='p-16 flex flex-col mb-5 w-[70%]'>
-              <div className='flex flex-col gap-5 mb-2'>
-                <span className='text-3xl font-semibold'>Xin chào,</span>
-                <span className='text-sm '>Đăng nhập hoặc Tạo tài khoản</span>
-                {loginStatus ? (
-                  <form onSubmit={handleLogin} method='post'>
-                    <Input
-                      onChange={onChange}
-                      name='phone'
-                      value={loginValues.phone}
-                      type='tel'
-                      className='outline-none mt-4 hover:border-red-500 focus:border-red-500 py-2 text-xl w-full'
-                      placeholder='Số điện thoại'
-                    />
-                    {loginInvalid && !loginValues.phone && (
-                      <p className='text-red-500'>
-                        Please enter an valid value
-                      </p>
-                    )}
-                    <Input.Password
-                      onChange={onChange}
-                      name='password'
-                      value={loginValues.password}
-                      type='password'
-                      className='outline-none mt-4 hover:border-red-500 focus:border-red-500 py-2 text-xl w-full'
-                      placeholder='Password'
-                    />
-                    {loginInvalid && !loginValues.password && (
-                      <p className='text-red-500'>
-                        Please enter an valid value
-                      </p>
-                    )}
-                    <button
-                      type='submit'
-                      className='w-full bg-red-500 p-2 hover:bg-red-600 border-none my-5 text-white rounded-md text-xl'
-                    >
-                      Tiếp Tục
-                    </button>
-                    <div className='flex items-center justify-center gap-1 '>
-                      <span className='text-gray-600'>
-                        Bạn mới biết đến Tiki?
-                      </span>
-                      <Button
-                        htmlType='button'
-                        onClick={handleLoginStatusChange}
-                        className='text-blue-500 cursor-pointer justify-self-center self-center border-none p-0'
+              {template || (
+                <div className='flex flex-col gap-5 mb-2'>
+                  <span className='text-3xl font-semibold'>Xin chào,</span>
+                  <span className='text-sm '>Đăng nhập hoặc Tạo tài khoản</span>
+                  {loginStatus ? (
+                    <form onSubmit={handleLogin} method='post'>
+                      <Input
+                        onChange={onChange}
+                        name='phone'
+                        value={loginValues.phone}
+                        type='tel'
+                        className='outline-none mt-4 hover:border-red-500 focus:border-red-500 py-2 text-xl w-full'
+                        placeholder='Số điện thoại'
+                      />
+                      {loginInvalid && !loginValues.phone && (
+                        <p className='text-red-500'>
+                          Please enter an valid value
+                        </p>
+                      )}
+                      <Input.Password
+                        onChange={onChange}
+                        name='password'
+                        value={loginValues.password}
+                        type='password'
+                        className='outline-none mt-4 hover:border-red-500 focus:border-red-500 py-2 text-xl w-full'
+                        placeholder='Password'
+                      />
+                      {loginInvalid && !loginValues.password && (
+                        <p className='text-red-500'>
+                          Please enter an valid value
+                        </p>
+                      )}
+                      <button
+                        type='submit'
+                        className='w-full bg-red-500 p-2 hover:bg-red-600 border-none my-5 text-white rounded-md text-xl'
                       >
-                        Đăng kí
-                      </Button>
-                    </div>
-                  </form>
-                ) : (
-                  <form onSubmit={handleRegister} method='post'>
-                    <Input
-                      onChange={onChange}
-                      name='username'
-                      value={registerValues.username}
-                      type='text'
-                      className='outline-none mt-4 py-2 text-lg w-full'
-                      placeholder='Username'
-                    />
-                    {registerInvalid && !registerValues.username && (
-                      <p className='text-red-500'>
-                        Please enter an valid value
-                      </p>
-                    )}
-                    <Input
-                      onChange={onChange}
-                      name='phone'
-                      value={registerValues.phone}
-                      type='tel'
-                      className='outline-none mt-4 py-2 text-lg w-full'
-                      placeholder='Số điện thoại'
-                    />
-                    {registerInvalid && !registerValues.phone && (
-                      <p className='text-red-500'>
-                        Please enter an valid value
-                      </p>
-                    )}
-                    <Input.Password
-                      onChange={onChange}
-                      name='password'
-                      value={registerValues.password}
-                      type='password'
-                      className='outline-none mt-4 py-2 text-lg w-full'
-                      placeholder='Password'
-                    />
-                    {registerInvalid && !registerValues.password && (
-                      <p className='text-red-500'>
-                        Please enter an valid value
-                      </p>
-                    )}
-                    <Input.Password
-                      onChange={onChange}
-                      name='confirmPassword'
-                      value={registerValues.confirmPassword}
-                      type='password'
-                      className='outline-none mt-4 py-2 text-lg w-full'
-                      placeholder='Confirm password'
-                    />
-                    {registerInvalid && !registerValues.confirmPassword && (
-                      <p className='text-red-500'>
-                        Please enter an valid value
-                      </p>
-                    )}
-                    <Input
-                      onChange={onChange}
-                      name='email'
-                      value={registerValues.email}
-                      type='email'
-                      className='outline-none mt-4 py-2 text-lg w-full'
-                      placeholder='Email'
-                    />
-                    {registerInvalid && !registerValues.email && (
-                      <p className='text-red-500'>
-                        Please enter an valid value
-                      </p>
-                    )}
-                    <Input
-                      onChange={onChange}
-                      name='address'
-                      value={registerValues.address}
-                      type='text'
-                      className='outline-none mt-4 py-2 text-lg w-full'
-                      placeholder='Địa chỉ'
-                    />
-                    {registerInvalid && !registerValues.address && (
-                      <p className='text-red-500'>
-                        Please enter an valid value
-                      </p>
-                    )}
-                    <button
-                      type='submit'
-                      className='w-full bg-blue-500 p-2 hover:bg-blue-600 border-none my-5 text-white rounded-md text-xl'
-                    >
-                      Tạo tài khoản
-                    </button>
-                    <div className='flex items-center justify-center gap-1 '>
-                      <span className='text-gray-600'>
-                        Bạn đã đăng kí Tiki?
-                      </span>
-                      <Button
-                        htmlType='button'
-                        onClick={handleLoginStatusChange}
-                        className='text-blue-500 cursor-pointer justify-self-center self-center border-none p-0'
+                        Tiếp Tục
+                      </button>
+                      <div className='flex items-center justify-center gap-1 '>
+                        <span className='text-gray-600'>
+                          Bạn mới biết đến Tiki?
+                        </span>
+                        <Button
+                          htmlType='button'
+                          onClick={handleLoginStatusChange}
+                          className='text-blue-500 cursor-pointer justify-self-center self-center border-none p-0'
+                        >
+                          Đăng kí
+                        </Button>
+                      </div>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleRegister} method='post'>
+                      <Input
+                        onChange={onChange}
+                        name='username'
+                        value={registerValues.username}
+                        type='text'
+                        className='outline-none mt-4 py-2 text-lg w-full'
+                        placeholder='Username'
+                      />
+                      {registerInvalid && !registerValues.username && (
+                        <p className='text-red-500'>
+                          Please enter an valid value
+                        </p>
+                      )}
+                      <Input
+                        onChange={onChange}
+                        name='phone'
+                        value={registerValues.phone}
+                        type='tel'
+                        className='outline-none mt-4 py-2 text-lg w-full'
+                        placeholder='Số điện thoại'
+                      />
+                      {registerInvalid && !registerValues.phone && (
+                        <p className='text-red-500'>
+                          Please enter an valid value
+                        </p>
+                      )}
+                      <Input.Password
+                        onChange={onChange}
+                        name='password'
+                        value={registerValues.password}
+                        type='password'
+                        className='outline-none mt-4 py-2 text-lg w-full'
+                        placeholder='Password'
+                      />
+                      {registerInvalid && !registerValues.password && (
+                        <p className='text-red-500'>
+                          Please enter an valid value
+                        </p>
+                      )}
+                      <Input.Password
+                        onChange={onChange}
+                        name='confirmPassword'
+                        value={registerValues.confirmPassword}
+                        type='password'
+                        className='outline-none mt-4 py-2 text-lg w-full'
+                        placeholder='Confirm password'
+                      />
+                      {registerInvalid && !registerValues.confirmPassword && (
+                        <p className='text-red-500'>
+                          Please enter an valid value
+                        </p>
+                      )}
+                      <Input
+                        onChange={onChange}
+                        name='email'
+                        value={registerValues.email}
+                        type='email'
+                        className='outline-none mt-4 py-2 text-lg w-full'
+                        placeholder='Email'
+                      />
+                      {registerInvalid && !registerValues.email && (
+                        <p className='text-red-500'>
+                          Please enter an valid value
+                        </p>
+                      )}
+                      <Input
+                        onChange={onChange}
+                        name='address'
+                        value={registerValues.address}
+                        type='text'
+                        className='outline-none mt-4 py-2 text-lg w-full'
+                        placeholder='Địa chỉ'
+                      />
+                      {registerInvalid && !registerValues.address && (
+                        <p className='text-red-500'>
+                          Please enter an valid value
+                        </p>
+                      )}
+                      <button
+                        type='submit'
+                        className='w-full bg-blue-500 p-2 hover:bg-blue-600 border-none my-5 text-white rounded-md text-xl'
                       >
-                        Đăng nhập
-                      </Button>
-                    </div>
-                  </form>
-                )}
-              </div>
+                        Tạo tài khoản
+                      </button>
+                      <div className='flex items-center justify-center gap-1 '>
+                        <span className='text-gray-600'>
+                          Bạn đã đăng kí Tiki?
+                        </span>
+                        <Button
+                          htmlType='button'
+                          onClick={handleLoginStatusChange}
+                          className='text-blue-500 cursor-pointer justify-self-center self-center border-none p-0'
+                        >
+                          Đăng nhập
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
               <div className='w-[85%] mt-5 text-xs text-gray-500'>
                 Bằng việc tiếp tục, bạn đã đọc và đồng ý với điều khoản sử dụng
                 và Chính sách bảo mật thông tin cá nhân của Tiki

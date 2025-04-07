@@ -65,7 +65,7 @@
         "madeIn": "Germany",
         "rating": 4,
         "discount": 20.00,
-        "image": "/products/belt-1.png",
+        "image": "products/belt-1.png",
         "maxDeliveryDay": 3,
         "shopId": 5,
         "categoryId": 3,

@@ -5,8 +5,23 @@ export const STATUS_CODE = {
 };
 
 export const PAGING = {
-  TAKE: 10
-}
+  TAKE: 10,
+};
+
+export const SHIPPING = {
+  FEES: [
+    { id: 1, name: 'Giao siêu tốc 2h', fee: 25 },
+    { id: 2, name: 'Giao tiết kiệm', fee: 10 },
+  ],
+  METHODS: [
+    { id: 1, name: 'Thanh toán tiền mặt', img: 'cash.svg' },
+    { id: 2, name: 'Viettel Money', img: 'viettelpay.svg' },
+    { id: 3, name: 'Ví Momo', img: 'momo.svg' },
+    { id: 4, name: 'Ví ZaloPay', img: 'zalopay.svg' },
+    { id: 5, name: 'VNPAY', img: 'vnpay.svg' },
+    { id: 6, name: 'Thẻ tín dụng / Ghi nợ', img: 'atm.svg' },
+  ],
+};
 
 export const banners = [
   {

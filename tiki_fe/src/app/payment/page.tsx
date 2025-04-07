@@ -1,13 +1,165 @@
 'use client';
-import { Radio, Tooltip } from 'antd';
-import React from 'react';
+import { Input, Radio, Tooltip } from 'antd';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { InformationCircleIcon, TicketIcon } from '@heroicons/react/24/outline';
 import { formatCurrency } from '@/utils';
 import { SliderBanner } from '@/components/home';
 import Link from 'next/link';
+import { banners, SHIPPING, STATUS_CODE } from '@/constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { useRouter } from 'next/navigation';
+import { addOrder, clearCart } from '@/store/cartSlice';
+import { hideModal, showModal } from '@/store/modalSlice';
+import { hideLoading, showLoading } from '@/store/loadingSlice';
+import { showAlert } from '@/store/alertSlice';
+import { onSaveUser } from '@/store/userSlice';
+import { createOrder, updateProfile } from '@/axios/apiService';
 
 export default function Page() {
+  const router = useRouter();
+  const dispatch = useDispatch();
+
+  const { user } = useSelector((state: RootState) => state.user);
+  const { carts } = useSelector((state: RootState) => state.cart);
+  const [currentMethod, setCurrentMethod] = useState({
+    deliveryMethod: 1,
+    paymentMethod: 1,
+  });
+  const [curentAddress, setCurentAddress] = useState(user?.address || '');
+
+  const onChange = (e) => {
+    e.preventDefault();
+    setCurentAddress(e.target.value);
+  };
+  const handleAddressChange = async () => {
+    if (curentAddress) {
+      dispatch(showLoading());
+      try {
+        const response = await updateProfile({
+          id: user.id,
+          data: { address: curentAddress },
+        });
+        if (response.status === STATUS_CODE.SUCCESS) {
+          dispatch(
+            showAlert({
+              type: 'success',
+              message: 'Address is updated successfully!',
+            }),
+          );
+          dispatch(onSaveUser(response.data));
+          dispatch(hideModal());
+        }
+      } catch (error) {
+        console.error('Error submitting data', error);
+        dispatch(
+          showAlert({
+            type: 'error',
+            message: error?.response.data.message || error?.message,
+          }),
+        );
+      }
+      dispatch(hideLoading());
+    } else {
+      dispatch(
+        showAlert({
+          type: 'error',
+          message: 'Please enter an address',
+        }),
+      );
+    }
+  };
+  const handleMethodChange = (e) => {
+    e.preventDefault();
+    const { value, name } = e.target;
+    setCurrentMethod({
+      ...currentMethod,
+      [name]: value,
+    });
+  };
+  const handleMakeOrder = async () => {
+    dispatch(
+      addOrder({
+        user,
+        carts,
+        ...currentMethod,
+      }),
+    );
+    dispatch(clearCart());
+    router.push('/order');
+
+    // dispatch(showLoading());
+    // try {
+    //   const orderRes = await createOrder({
+    //     user,
+    //     carts,
+    //     ...currentMethod,
+    //   });
+    //   if (orderRes.status === STATUS_CODE.CREATE_SUCCESS) {
+    //     dispatch(addOrder(orderRes.data));
+    //     dispatch(clearCart());
+    //     router.push('/order');
+    //   }
+    // } catch (error) {
+    //   console.error('Error submitting data', error);
+    //   throw error;
+    // }
+    // dispatch(hideLoading());
+  };
+  const handleProfileChange = () => {
+    dispatch(
+      showModal({
+        template: (
+          <div className='flex flex-col gap-5 mb-2'>
+            <span className='text-3xl font-semibold'>Xin chào,</span>
+            <span className='text-sm '>Thay đổi địa chỉ nhận hàng</span>
+            <form onSubmit={handleAddressChange} method='post'>
+              <Input
+                onChange={onChange}
+                name='address'
+                value={curentAddress}
+                type='text'
+                className='outline-none mt-4 hover:border-red-500 focus:border-red-500 py-2 text-xl w-full'
+                placeholder='Địa chỉ'
+              />
+              {!curentAddress && (
+                <p className='text-red-500'>Please enter an valid value</p>
+              )}
+              <button
+                type='submit'
+                className='w-full bg-red-500 p-2 hover:bg-red-600 border-none my-5 text-white rounded-md text-xl'
+              >
+                Lưu
+              </button>
+            </form>
+          </div>
+        ),
+      }),
+    );
+  };
+
+  const coupons = [];
+  carts.forEach((cart) => {
+    const index = coupons?.findIndex((coupon) => coupon.id == cart.coupon?.id);
+    if (index == -1 && cart.coupon) coupons.push(cart.coupon);
+  });
+  const totalPrice = carts.reduce((totalPrice, item) => {
+    return (totalPrice += +item.price * +item.quantity);
+  }, 0);
+  const totalDiscount = carts.reduce((totalDiscount, item) => {
+    return (totalDiscount += +item.discount * +item.quantity);
+  }, 0);
+  const totalCoupon = coupons.reduce((totalCoupon, item) => {
+    return (totalCoupon += +item?.discount);
+  }, 0);
+  const shippingFee =
+    SHIPPING.FEES.find((i) => i.id == currentMethod.deliveryMethod)?.fee || 0;
+
+  if (!(carts && carts.length && user)) {
+    router.push('/');
+    return;
+  }
   return (
     <div className='w-[75%] flex flex-row gap-5'>
       <div className='w-[75%] flex flex-col gap-5'>
@@ -16,20 +168,23 @@ export default function Page() {
             Chọn hình thức giao hàng
           </div>
           <div className='w-[50%] bg-sky-100 rounded-lg p-5 flex flex-col gap-5'>
-            <Radio.Group className='flex flex-col gap-5' size={'small'}>
-              <Radio value={1}>
-                <span className=' mr-2'>Giao siêu tốc 2h</span>
-                <span className='bg-white text-sm rounded-md text-green-500 p-1 font-medium'>
-                  -25K
-                </span>
-              </Radio>
-
-              <Radio value={2}>
-                <span className=' mr-2'>Giao tiết kiệm</span>
-                <span className='bg-white text-sm rounded-md text-green-500 p-1 font-medium'>
-                  -25K
-                </span>
-              </Radio>
+            <Radio.Group
+              onChange={handleMethodChange}
+              value={currentMethod.deliveryMethod}
+              className='flex flex-col gap-5'
+              size={'small'}
+              name='deliveryMethod'
+            >
+              {SHIPPING.FEES.map((f) => {
+                return (
+                  <Radio key={f.id} value={f.id}>
+                    <span className=' mr-2'>{f.name}</span>
+                    <span className='bg-white text-sm rounded-md text-green-500 p-1 font-medium'>
+                      {formatCurrency('us-US', 'USD', f.fee)}
+                    </span>
+                  </Radio>
+                );
+              })}
             </Radio.Group>
           </div>
         </div>
@@ -40,209 +195,163 @@ export default function Page() {
           </span>
 
           <div className='w-[50%] mt-5 rounded-lg  flex flex-col gap-5'>
-            <Radio.Group className='flex flex-col gap-5' size={'small'}>
-              <Radio value={1} className='flex flex-row items-center gap-2'>
-                <div className='flex-row flex gap-2 items-center'>
-                  <Image src='cash.svg' width={30} height={30} alt='cash' />
-                  <span className=' mr-2'>Thanh toán tiền mặt</span>
-                </div>
-              </Radio>
-
-              <Radio value={2} className='flex flex-row items-center gap-2'>
-                <div className='flex-row flex gap-2 items-center'>
-                  <Image
-                    src='viettelpay.svg'
-                    width={30}
-                    height={30}
-                    alt='cash'
-                  />
-                  <span className=' mr-2'>Viettel Money</span>
-                </div>
-              </Radio>
-
-              <Radio value={3} className='flex flex-row items-center gap-2'>
-                <div className='flex-row flex gap-2 items-center'>
-                  <Image src='momo.svg' width={30} height={30} alt='cash' />
-                  <span className=' mr-2'>Ví Momo</span>
-                </div>
-              </Radio>
-
-              <Radio value={4} className='flex flex-row items-center gap-2'>
-                <div className='flex-row flex gap-2 items-center'>
-                  <Image src='zalopay.svg' width={30} height={30} alt='cash' />
-                  <span className=' mr-2'>Ví ZaloPay</span>
-                </div>
-              </Radio>
-
-              <Radio value={5} className='flex flex-row items-center gap-2'>
-                <div className='flex-row flex gap-2 items-center'>
-                  <Image src='vnpay.svg' width={30} height={30} alt='cash' />
-                  <span className=' mr-2'>VNPAY</span>
-                </div>
-              </Radio>
-
-              <Radio value={6} className='flex flex-row items-center gap-2'>
-                <div className='flex-row flex gap-2 items-center'>
-                  <Image src='atm.svg' width={30} height={30} alt='cash' />
-                  <span className=' mr-2'>Thẻ tín dụng / Ghi nợ</span>
-                </div>
-              </Radio>
+            <Radio.Group
+              onChange={handleMethodChange}
+              value={currentMethod.paymentMethod}
+              className='flex flex-col gap-5'
+              size={'small'}
+              name='paymentMethod'
+            >
+              {SHIPPING.METHODS.map((m) => {
+                return (
+                  <Radio
+                    key={m.id}
+                    value={m.id}
+                    className='flex flex-row items-center gap-2'
+                  >
+                    <div className='flex-row flex gap-2 items-center'>
+                      <Image src={m.img} width={30} height={30} alt={m.img} />
+                      <span className=' mr-2'>{m.name}</span>
+                    </div>
+                  </Radio>
+                );
+              })}
             </Radio.Group>
           </div>
         </div>
       </div>
       <div className='w-[25%] flex flex-col gap-3'>
+        {user && (
+          <div className='bg-white p-4 rounded-md'>
+            <div className='flex justify-between'>
+              <span>Giao tới</span>
+              <button
+                onClick={handleProfileChange}
+                className='text-blue-500 text-sm'
+              >
+                Thay đổi
+              </button>
+            </div>
+            <hr className='my-2' />
+            <span className='text-sm font-semibold'>
+              {user?.name}
+              <span className='text-gray-200 inline-block px-1'>|</span>{' '}
+              {user?.phone}
+            </span>
+            <div className='text-gray-500 text-sm my-1'>{user?.address}</div>
+          </div>
+        )}
+        {coupons && coupons.length ? (
+          <div className='bg-white p-4 rounded-md'>
+            <div className='flex flex-row justify-between items-center'>
+              <span>Khuyến Mãi </span>
+              <div className='text-gray-500 flex flex-row items-center gap-1'>
+                <Tooltip
+                  placement='bottom'
+                  title={'Áp dụng các Mã giảm giá đã chọn'}
+                >
+                  <InformationCircleIcon className='size-4 cursor-pointer' />
+                </Tooltip>
+              </div>
+            </div>
+            <hr className='my-2' />
+            <div>
+              <div className='text-blue-500 mt-3 flex flex-row items-center gap-2'>
+                <TicketIcon className='size-5 font-semibold' />
+                <span className='text-xs'>Coupons đang áp dụng</span>
+              </div>
+              <div className='flex flex-col gap-1 items-start text-blue-600 font-medium'>
+                {coupons?.map((i: any) => {
+                  return (
+                    <button
+                      key={i?.id}
+                      disabled={true}
+                      className='text-xs bg-blue-600 text-white border rounded-lg border-gray-200 p-1 px-2'
+                    >
+                      {i?.code}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
         <div className='bg-white p-4 rounded-md'>
           <div className='flex justify-between'>
-            <span className='text-gray-500'>Giao tới</span>
-            <span className='text-blue-500 text-sm'>Thay đổi</span>
+            <span className='text-gray-900 font-medium'>Đơn hàng</span>
+            <Link href={'/cart'} className='text-blue-500 text-sm'>
+              Thay đổi
+            </Link>
           </div>
-          <span className='text-sm font-semibold'>
-            Nguyễn Phúc Thịnh
-            <span className='text-gray-200 inline-block px-1'>|</span>{' '}
-            0896359374
-          </span>
-          <div>
-            <span className='bg-gray-50 p-1 rounded-sm text-xs font-semibold text-green-500 mr-2'>
-              Nhà
-            </span>
-            <span className='text-gray-500 text-sm'>
-              13 Đường số 14, Phường An Lạc A, Quận Bình Tân, Hồ Chí Minh
-            </span>
+          <hr className='mt-2 mb-3' />
+          <div className='flex flex-col gap-2'>
+            <div className='flex flex-row justify-between items-center'>
+              <span className='text-gray-500 text-sm'>Tạm tính</span>
+              <span className='text-gray-900 text-sm'>
+                {formatCurrency('us-US', 'USD', totalPrice)}
+              </span>
+            </div>
+
+            <div className='flex flex-row justify-between items-center'>
+              <span className='text-gray-500 text-sm'>Phí vận chuyển</span>
+              <span className='text-gray-900 text-sm'>
+                {formatCurrency('us-US', 'USD', shippingFee)}
+              </span>
+            </div>
+            <div className='flex flex-row justify-between items-center'>
+              <span className='text-gray-500 text-sm'>Giảm giá</span>
+              <span className='text-green-500 text-sm'>
+                -{formatCurrency('us-US', 'USD', totalDiscount)}
+              </span>
+            </div>
+            <div className='flex flex-row justify-between items-center'>
+              <span className='text-gray-500 text-sm'>Coupons</span>
+              <span className='text-green-500 text-sm'>
+                -{formatCurrency('us-US', 'USD', totalCoupon)}
+              </span>
+            </div>
+            <hr className='mt-2' />
+
+            <div className='flex flex-row justify-between items-center'>
+              <span className='text-gray-500 text-sm'>Tổng tiền</span>
+              <span className='text-red-500 text-xl font-medium'>
+                {formatCurrency(
+                  'us-US',
+                  'USD',
+                  totalPrice + shippingFee - totalDiscount - totalCoupon,
+                )}
+              </span>
+            </div>
+            <button
+              onClick={handleMakeOrder}
+              className='flex items-center justify-center text-white bg-red-500 p-2 rounded-md'
+            >
+              Đặt hàng
+            </button>
           </div>
         </div>
-        <div className='bg-white p-4 rounded-md'>
-          <div className='flex flex-row justify-between items-center'>
-            <span className='text-xs font-medium'>Tiki Khuyến Mãi </span>
-            <div className='text-gray-500 flex flex-row items-center gap-1'>
-              <span className='text-sm'>Có thể chọn 2</span>
-              <Tooltip
-                placement='bottom'
-                title={
-                  'Áp dụng tối đa 1 Mã giảm giá Sản Phẩm và 1 Mã Vận Chuyển'
-                }
+
+        <SliderBanner className='h-fit w-full'>
+          {banners.map((i) => {
+            return (
+              <div
+                key={i.src1}
+                className='w-full h-32 flex flex-row shrink-0 gap-3'
               >
-                <InformationCircleIcon className='size-4 cursor-pointer' />
-              </Tooltip>
-            </div>
-          </div>
-
-          <div className='relative'>
-            <Image
-              src='/coupon.svg'
-              unoptimized
-              className='mt-3 relative'
-              width={286}
-              height={60}
-              alt='coupon'
-            />
-            <div className='absolute top-1/2 -translate-y-1/2 flex flex-row items-center'>
-              <Image
-                src='/tiki.png'
-                unoptimized
-                className='ml-1.5 rounded-lg'
-                width={44}
-                height={44}
-                alt='coupon'
-              />
-              <div className='text-xs font-medium ml-4 '>Giảm 3%</div>
-              <div className='rounded-md text-white bg-blue-500 text-xs p-1 ml-16 px-4'>
-                Bỏ Chọn
+                <div className='w-full h-32 relative'>
+                  <Image
+                    className='rounded-lg'
+                    src={`/${i.src1}`}
+                    fill
+                    unoptimized
+                    alt=''
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-          <div>
-            <div className='text-blue-500 mt-5 flex flex-row items-center gap-2'>
-              <TicketIcon className='size-5 font-semibold' />
-              <span className='text-xs'>Chọn hoặc nhập khuyến mãi khác</span>
-            </div>
-          </div>
-        </div>
-        <div className='bg-white  rounded-md'>
-          <div className='p-4'>
-            <div className='flex justify-between'>
-              <span className='text-gray-900 font-medium'>Đơn hàng</span>
-              <span className='text-blue-500 text-sm'>Thay đổi</span>
-            </div>
-          </div>
-          <hr className='mt-3' />
-          <div className='p-4'>
-            <div className='flex flex-col gap-2'>
-              <div className='flex flex-row justify-between items-center'>
-                <span className='text-gray-500 text-sm'>Tạm tính</span>
-                <span className='text-gray-900 text-sm'>
-                  {formatCurrency('vi-VN', 'VND', 1156000)}₫
-                </span>
-              </div>
-
-              <div className='flex flex-row justify-between items-center'>
-                <span className='text-gray-500 text-sm'>Phí vận chuyển</span>
-                <span className='text-gray-900 text-sm'>
-                  {formatCurrency('vi-VN', 'VND', 56000)}₫
-                </span>
-              </div>
-              <div className='flex flex-row justify-between items-center'>
-                <span className='text-gray-500 text-sm'>
-                  Khuyến mãi vận chuyển
-                </span>
-                <span className='text-green-500 text-sm'>
-                  -{formatCurrency('vi-VN', 'VND', 25000)}₫
-                </span>
-              </div>
-              <hr className='mt-2' />
-
-              <div className='flex flex-row justify-between items-center'>
-                <span className='text-gray-500 text-sm'>Tổng tiền</span>
-                <span className='text-red-500 text-xl font-medium'>
-                  -{formatCurrency('vi-VN', 'VND', 1187000)}₫
-                </span>
-              </div>
-              <Link
-                href='/order'
-                className='flex items-center justify-center text-white bg-red-500 p-2 rounded-md'
-              >
-                Đặt hàng
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <SliderBanner className='h-fit mt-5'>
-          <div className='w-full h-32 flex flex-row shrink-0 gap-3'>
-            <div className='w-full h-32 relative'>
-              <Image
-                className='rounded-lg'
-                src='/banner-d-1.png'
-                fill
-                unoptimized
-                alt=''
-              />
-            </div>
-          </div>
-
-          <div className='w-full h-32 flex flex-row shrink-0 gap-3'>
-            <div className='w-full h-32 relative'>
-              <Image
-                className='rounded-lg'
-                src='/banner-d-2.png'
-                fill
-                unoptimized
-                alt=''
-              />
-            </div>
-          </div>
-
-          <div className='w-full h-32 flex flex-row shrink-0 gap-3'>
-            <div className='w-full h-32 relative'>
-              <Image
-                className='rounded-lg'
-                src='/banner-d-1.png'
-                fill
-                unoptimized
-                alt=''
-              />
-            </div>
-          </div>
+            );
+          })}
         </SliderBanner>
       </div>
     </div>

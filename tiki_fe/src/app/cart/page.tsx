@@ -33,12 +33,12 @@ export default function Page() {
 
   const handlePayNow = () => {
     // if (user) {
-      router.push('/payment');
+    router.push('/payment');
     // } else {
     //   dispatch(
-    //     showModal(() => {
+    //     showModal({func: () => {
     //       router.push('/payment');
-    //     }),
+    //     }}),
     //   );
     // }
   };
