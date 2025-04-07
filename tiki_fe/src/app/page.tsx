@@ -14,7 +14,7 @@ import { SliderBanner } from '@/components/home';
 import categoriesData from '@/data/categories.json';
 import tagsData from '@/data/tags.json';
 import productsData from '@/data/products_1.json';
-import { banners } from '@/constants';
+import { banners, PAGING } from '@/constants';
 
 export default function Home() {
   const { categories } = useSelector((state: RootState) => state.category);
@@ -28,7 +28,7 @@ export default function Home() {
   });
   const [paging, setPaging] = useState({
     page: 1,
-    take: 10,
+    take: PAGING.TAKE,
   });
   const [loading, setLoading] = useState(false);
 
@@ -118,14 +118,14 @@ export default function Home() {
       //   filter,
       //   paging: { skip: paging.page * paging.take, take: paging.take },
       // });
-      setPaging({...paging, page: paging.page + 1});
-      
-      const productsRes = {...products};
+      const productsRes = {...productsData};
+
       productsRes.products = [
+        ...products.products,
         ...productsRes.products,
-        ...productsData.products
       ];
 
+      setPaging({...paging, page: paging.page + 1});
       dispatch(getProductsSlice(productsRes));
     } catch (error) {}
     setLoading(false);

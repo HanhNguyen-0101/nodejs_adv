@@ -1,3 +1,13 @@
+export const STATUS_CODE = {
+  CREATE_SUCCESS: 201,
+  SUCCESS: 200,
+  ERROR: 404,
+};
+
+export const PAGING = {
+  TAKE: 10
+}
+
 export const banners = [
   {
     src1: 'banner-1-1.webp',

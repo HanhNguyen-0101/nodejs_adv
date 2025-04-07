@@ -13,9 +13,10 @@ const cartSlice = createSlice({
       const item = action.payload;
       const existingItem = state.carts.find((i) => i.id === item.id);
       if (existingItem) {
-        existingItem.quantity += item.quantity;
+        existingItem.quantity = item.quantity;
+        existingItem.coupon = item.coupon;
       } else {
-        state.carts.push({ ...item, quantity: item.quantity });
+        state.carts.push(item);
       }
     },
     removeItem: (state, action) => {

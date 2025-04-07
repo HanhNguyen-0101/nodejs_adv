@@ -8,6 +8,7 @@ import shopReducer from './shopSlice';
 import productReducer from './productSlice';
 import cartReducer from './cartSlice';
 import tagReducer from './tagSlice';
+import modalReducer from './modalSlice';
 
 const store = configureStore({
   reducer: {
@@ -19,6 +20,7 @@ const store = configureStore({
     product: productReducer,
     cart: cartReducer,
     tag: tagReducer,
+    modal: modalReducer,
   },
 });
 

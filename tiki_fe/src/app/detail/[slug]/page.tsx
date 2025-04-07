@@ -3,10 +3,7 @@ import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import 'moment/locale/vi';
 import Image from 'next/image';
-import {
-  CheckIcon,
-  TagIcon,
-} from '@heroicons/react/20/solid';
+import { CheckIcon, TagIcon } from '@heroicons/react/20/solid';
 
 import {
   TruckIcon,
@@ -26,17 +23,27 @@ import { hideLoading, showLoading } from '@/store/loadingSlice';
 import { getProduct, getProducts } from '@/axios/apiService';
 import { RootState } from '@/store';
 import { banners } from '@/constants';
+import { addItem } from '@/store/cartSlice';
+import { showModal } from '@/store/modalSlice';
+import { useRouter } from 'next/navigation';
+import { showAlert } from '@/store/alertSlice';
 
 export default function Page({ params }: { params: { slug: string } }) {
+  const router = useRouter();
   const dispatch = useDispatch();
   moment.locale('vi');
   const { user } = useSelector((state: RootState) => state.user);
+  const { carts } = useSelector((state: RootState) => state.cart);
+
+  const cartOfProduct = carts?.find((c) => c?.id == params.slug);
 
   const [product, setProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [image, setImage] = useState<string>('');
-  const [quantity, setQuantity] = useState<number>(1);
-  const [coupon, setCoupon] = useState(null);
+  const [quantity, setQuantity] = useState<number>(
+    cartOfProduct?.quantity || 1,
+  );
+  const [coupon, setCoupon] = useState(cartOfProduct?.coupon || null);
 
   useEffect(() => {
     getProductDetail();
@@ -47,7 +54,7 @@ export default function Page({ params }: { params: { slug: string } }) {
     dispatch(showLoading());
     try {
       // const productRes = await getProduct(params.slug);
-      const productRes = productsData.products[4];
+      const productRes = productsData.products.find((i) => i.id == params.slug);
       setProduct(productRes);
       setImage(productRes.image);
     } catch (error) {
@@ -71,7 +78,13 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const handleInputChange = (e: any) => {
     e.preventDefault();
-    setQuantity(+e.target.value);
+    if (
+      (+e.target.value &&
+        +e.target.value > 0 &&
+        Number.isInteger(+e.target.value)) ||
+      !e.target.value
+    )
+      setQuantity(+e.target.value);
   };
 
   const handlePrice = (type: string) => {
@@ -93,10 +106,40 @@ export default function Page({ params }: { params: { slug: string } }) {
     setCoupon(coupon);
   };
 
-  const handleBuyNow = () => {};
-  const handelAddToCard = () => {};
+  const handleBuyNow = () => {
+    handelAddToCard();
+    if (quantity) {
+      if (user) {
+        router.push('/payment');
+      } else {
+        dispatch(
+          showModal(() => {
+            router.push('/payment');
+          }),
+        );
+      }
+    }
+  };
+  const handelAddToCard = () => {
+    if (quantity) {
+      dispatch(
+        addItem({
+          ...product,
+          quantity,
+          coupon,
+        }),
+      );
+    } else {
+      dispatch(
+        showAlert({
+          type: 'error',
+          message: 'Vui lòng thêm số lượng'
+        }),
+      );
+    }
+  };
 
-  console.log('------------', product, products);
+  console.log('-----detail-------', product, products, carts, cartOfProduct);
   return (
     <div className='flex flex-row mb-5 gap-6 w-[90%]'>
       <div className='flex flex-col w-[27%] bg-white p-4 rounded-md sticky h-fit top-5'>
@@ -130,7 +173,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       <div className='w-[40%] flex flex-col gap-4'>
         <div className='bg-white p-3 rounded-lg h-fit'>
           <div className='flex flex-row gap-2 items-center'>
-            {product?.shops.official && (
+            {product?.shops?.official && (
               <Image
                 src='/chinh-hang.png'
                 width={120}
@@ -141,7 +184,7 @@ export default function Page({ params }: { params: { slug: string } }) {
             )}
             <span className='text-sm flex-1 text-right'>
               Thương hiệu:{' '}
-              <span className='text-blue-500'>{product?.shops.name}</span>
+              <span className='text-blue-500'>{product?.shops?.name}</span>
             </span>
           </div>
           {product?.tags && product?.tags.length && (
@@ -205,7 +248,7 @@ export default function Page({ params }: { params: { slug: string } }) {
             <span className=' text-md font-medium'>
               Giao{' '}
               <span className='capitalize'>
-                {moment().add(product?.maxDeliveryDay, 'days').format('dddd')}: 
+                {moment().add(product?.maxDeliveryDay, 'days').format('dddd')}:
               </span>
             </span>
             <span className=''>
@@ -351,9 +394,9 @@ export default function Page({ params }: { params: { slug: string } }) {
         <div className='p-4 bg-white flex flex-col rounded-lg'>
           <div className='flex flex-row gap-2'>
             <div>
-              <span className='font-medium'>{product?.shops.name}</span>
+              <span className='font-medium'>{product?.shops?.name}</span>
               <div className='flex flex-row items-center gap-2'>
-                {product?.shops.official && (
+                {product?.shops?.official && (
                   <Image
                     src='/official.png'
                     width={72}
@@ -363,10 +406,10 @@ export default function Page({ params }: { params: { slug: string } }) {
                   />
                 )}
                 <span className='text-xs text-gray-200 font-bold'>|</span>
-                <span>{product?.shops.rating}</span>
+                <span>{product?.shops?.rating}</span>
                 <Rate
                   count={1}
-                  value={product?.shops.rating}
+                  value={product?.shops?.rating}
                   allowHalf
                   disabled
                   className='text-[17px]'

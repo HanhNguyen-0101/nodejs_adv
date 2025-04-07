@@ -16,14 +16,16 @@ import {
 import { MapPinIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button, Modal, Input } from 'antd';
+import { Button, Input, Modal } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { hideLoading, showLoading } from '@/store/loadingSlice';
 import { showAlert } from '@/store/alertSlice';
 import { login, register } from '@/axios/apiService';
-import { STATUS_CODE } from '@/store/constants';
 import { onClearUser, onSaveUser } from '@/store/userSlice';
+import { PAGING, STATUS_CODE } from '@/constants';
+import { hideModal, showModal } from '@/store/modalSlice';
+import { Input as InputCustom } from '@/components/shared';
 
 const initLoginValues = {
   password: '',
@@ -42,32 +44,19 @@ export const Header = () => {
   const refSearch = useRef<any>();
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.user);
+  const { carts } = useSelector((state: RootState) => state.cart);
+  const { isModalOpen, func } = useSelector((state: RootState) => state.modal);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loginStatus, setLoginStatus] = useState(true);
   const [loginValues, setLoginValues] = useState(initLoginValues);
   const [registerValues, setRegisterValues] = useState(initRegisterValues);
   const [loginInvalid, setLoginInvalid] = useState(false);
   const [registerInvalid, setRegisterInvalid] = useState(false);
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleChangeSearch = (e: any) => {
-    console.log(refSearch);
-
-    if (refSearch.current) refSearch.current.value = e.target.value;
-  };
   const handleSearch = () => {
-    console.log(refSearch.current.value);
-    router.push(`/search?query=${refSearch.current.value}`);
+    router.push(
+      `/search?query=${refSearch.current.value}&take=${PAGING.TAKE}&page=1`,
+    );
   };
 
   const handleLoginStatusChange = () => {
@@ -96,7 +85,10 @@ export const Header = () => {
           }),
         );
         dispatch(onSaveUser(response.data));
-        setIsModalOpen(false);
+        dispatch(hideModal());
+        if (typeof func == 'function') {
+          func();
+        }
       }
     } catch (error) {
       console.error('Error submitting data', error);
@@ -148,13 +140,13 @@ export const Header = () => {
   const handleLogout = () => {
     dispatch(
       showAlert({
-        type: "success",
-        message: "Logout is successfully!",
-      })
+        type: 'success',
+        message: 'Logout is successfully!',
+      }),
     );
     dispatch(onClearUser());
-    router.push("/");
-  }
+    router.push('/');
+  };
   const onChange = (e: any) => {
     e.preventDefault();
     const { name, value } = e.target;
@@ -178,7 +170,8 @@ export const Header = () => {
       }
     }
   };
-  console.log('------Header', user);
+  console.log('------Header', user, carts, isModalOpen);
+
   return (
     <div className='bg-white border-b border-gray-200'>
       <nav className='flex flex-row items-center h-fit gap-1 justify-center pt-3 border-b pb-2.5'>
@@ -200,7 +193,7 @@ export const Header = () => {
         </Link>
         <div className='flex flex-col'>
           <div className='flex flex-row'>
-            <Input
+            <InputCustom
               ref={refSearch}
               onKeyUp={(event) => {
                 if (event.key === 'Enter') {
@@ -229,13 +222,16 @@ export const Header = () => {
                 <HomeIcon className='size-6 text-[#0560D9]' />
               </Link>
               {user ? (
-                <div onClick={handleLogout} className='ml-10 relative flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33] w-fit p-2 rounded text-sm items-center justify-center before:w-[1px] before:h-3/6 before:absolute before:bg-[#BFC4CC] before:-left-5'>
+                <div
+                  onClick={handleLogout}
+                  className='ml-10 relative flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33] w-fit p-2 rounded text-sm items-center justify-center before:w-[1px] before:h-3/6 before:absolute before:bg-[#BFC4CC] before:-left-5'
+                >
                   <ArrowLeftOnRectangleIcon className='size-6 text-[#0560D9]' />
                   <span className='text-[#0560D9]'>{user?.name}</span>
                 </div>
               ) : (
                 <div
-                  onClick={showModal}
+                  onClick={() => dispatch(showModal())}
                   className='ml-10 relative flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33] w-fit p-2 rounded text-sm items-center justify-center before:w-[1px] before:h-3/6 before:absolute before:bg-[#BFC4CC] before:-left-5'
                 >
                   <ArrowRightOnRectangleIcon className='size-6 text-[#0560D9]' />
@@ -247,6 +243,12 @@ export const Header = () => {
                 className='ml-10 relative flex flex-row gap-1 cursor-pointer hover:bg-[#0a68ff33] w-fit p-2 rounded text-sm items-center justify-center before:w-[1px] before:h-3/6 before:absolute before:bg-[#BFC4CC] before:-left-5'
               >
                 <ShoppingCartIcon className='size-6 text-[#0560D9]' />
+                <span
+                  className='text-xs bg-red-600 relative rounded w-full text-white inline-block bottom-4 right-3 text-center'
+                  style={{ width: '15px', borderRadius: '50px' }}
+                >
+                  {carts?.length}
+                </span>
               </Link>
             </div>
           </div>
@@ -293,8 +295,8 @@ export const Header = () => {
           closable={false}
           title={null}
           open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
+          onOk={() => dispatch(hideModal())}
+          onCancel={() => dispatch(hideModal())}
           footer={null}
           className=''
           width={950}
@@ -302,7 +304,7 @@ export const Header = () => {
           <div className='w-full flex flex-row relative '>
             <div
               onClick={() => {
-                setIsModalOpen(false);
+                dispatch(hideModal());
               }}
               className='w-10 h-10 bg-white rounded-full flex justify-center absolute items-center -top-3 -right-3 cursor-pointer font-bold'
             >
