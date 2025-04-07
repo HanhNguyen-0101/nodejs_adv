@@ -10,7 +10,7 @@ import { banners, SHIPPING, STATUS_CODE } from '@/constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { useRouter } from 'next/navigation';
-import { addOrder, clearCart } from '@/store/cartSlice';
+import { addOrder } from '@/store/cartSlice';
 import { hideModal, showModal } from '@/store/modalSlice';
 import { hideLoading, showLoading } from '@/store/loadingSlice';
 import { showAlert } from '@/store/alertSlice';
@@ -86,7 +86,6 @@ export default function Page() {
         ...currentMethod,
       }),
     );
-    dispatch(clearCart());
     router.push('/order');
 
     // dispatch(showLoading());
@@ -98,7 +97,6 @@ export default function Page() {
     //   });
     //   if (orderRes.status === STATUS_CODE.CREATE_SUCCESS) {
     //     dispatch(addOrder(orderRes.data));
-    //     dispatch(clearCart());
     //     router.push('/order');
     //   }
     // } catch (error) {

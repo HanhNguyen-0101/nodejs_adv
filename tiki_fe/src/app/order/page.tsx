@@ -4,16 +4,23 @@ import { RootState } from '@/store';
 import { Timeline } from 'antd';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import 'moment/locale/vi';
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { clearCart } from '@/store/cartSlice';
 
 export default function Page() {
   const router = useRouter();
   moment.locale('vi');
+  const dispatch = useDispatch();
   const { orders } = useSelector((state: RootState) => state.cart);
   const { user } = useSelector((state: RootState) => state.user);
+  useEffect(() => {
+    dispatch(clearCart());
+  }, [])
+  
   if (!(orders && user)) {
     router.push('/');
     return;
@@ -41,7 +48,7 @@ export default function Page() {
             mode='left'
             items={[
               {
-                label: <span className=''>{moment().format('HH:mm')}</span>,
+                label: <span className=''>{moment().add(maxDeliveryDay - 1, 'days').add(14, 'hours').format('HH:mm')}</span>,
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
                 children: (
                   <div className='w-[30rem]'>
@@ -49,7 +56,7 @@ export default function Page() {
                       Đang giao hàng
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment().add(maxDeliveryDay - 1, 'days').add(14, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
 
                     <div className=''>Nhân viên đang giao hàng</div>
@@ -58,7 +65,7 @@ export default function Page() {
                 ),
               },
               {
-                label: <span className=''>{moment().format('HH:mm')}</span>,
+                label: <span className=''>{moment().add(maxDeliveryDay - 1, 'days').add(8, 'hours').format('HH:mm')}</span>,
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
                 children: (
                   <div className='w-[30rem]'>
@@ -66,7 +73,7 @@ export default function Page() {
                       Đơn hàng đã rời kho phân loại
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment().add(maxDeliveryDay - 1, 'days').add(8, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
 
                     <div>Đã tới kho Bình Tân</div>
@@ -75,7 +82,7 @@ export default function Page() {
                 ),
               },
               {
-                label: <span className=''>{moment().format('HH:mm')}</span>,
+                label: <span className=''>{moment().add(maxDeliveryDay - 1, 'days').add(5, 'hours').format('HH:mm')}</span>,
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
 
                 children: (
@@ -84,7 +91,7 @@ export default function Page() {
                       Đơn hàng đã rời kho phân loại
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment().add(maxDeliveryDay - 1, 'days').add(5, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
                     <div>Đã rời kho Tân tạo</div>
                     <hr className=' mt-5' />
@@ -93,7 +100,7 @@ export default function Page() {
               },
 
               {
-                label: <span className=''>{moment().format('HH:mm')}</span>,
+                label: <span className=''>{moment().add(maxDeliveryDay - 2, 'days').add(12, 'hours').format('HH:mm')}</span>,
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
 
                 children: (
@@ -102,7 +109,7 @@ export default function Page() {
                       Đơn hàng đã rời bưu cục
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment().add(maxDeliveryDay - 2, 'days').add(12, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
                     <div>Đã rời bưu cục</div>
                     <hr className=' mt-5' />
@@ -111,7 +118,7 @@ export default function Page() {
               },
 
               {
-                label: <span className=''>{moment().format('HH:mm')}</span>,
+                label: <span className=''>{moment().add(maxDeliveryDay - 2, 'days').add(6, 'hours').format('HH:mm')}</span>,
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
 
                 children: (
@@ -120,7 +127,7 @@ export default function Page() {
                       Đang được chuẩn bị
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment().add(maxDeliveryDay - 2, 'days').add(6, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
                     <div>Người gửi đang chuẩn bị hàng</div>
                     <hr className=' mt-5' />

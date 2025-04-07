@@ -106,20 +106,6 @@ export default function Page({ params }: { params: { slug: string } }) {
     setCoupon(coupon);
   };
 
-  const handleBuyNow = () => {
-    handelAddToCard();
-    if (quantity) {
-      if (user) {
-        router.push('/payment');
-      } else {
-        dispatch(
-          showModal({func: () => {
-            router.push('/payment');
-          }}),
-        );
-      }
-    }
-  };
   const handelAddToCard = () => {
     if (quantity) {
       dispatch(
@@ -485,14 +471,8 @@ export default function Page({ params }: { params: { slug: string } }) {
             </div>
             <div>
               <button
-                onClick={handleBuyNow}
-                className='bg-red-500 text-white rounded-md w-full h-10 mt-3'
-              >
-                Mua ngay
-              </button>
-              <button
                 onClick={handelAddToCard}
-                className='bg-white text-blue-500 border border-blue-500 rounded-md w-full h-10 mt-3'
+                className='bg-red-500 text-white rounded-md w-full h-10 mt-3'
               >
                 Thêm vào giỏ
               </button>

@@ -1,9 +1,0 @@
-{
-    "productTags": [
-      { "productId": 1, "tagId": 1 },
-      { "productId": 2, "tagId": 2 },
-      { "productId": 3, "tagId": 3 },
-      { "productId": 4, "tagId": 4 },
-      { "productId": 5, "tagId": 5 }
-    ]
-  }
