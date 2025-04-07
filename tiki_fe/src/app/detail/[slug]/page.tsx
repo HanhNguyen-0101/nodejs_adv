@@ -113,9 +113,9 @@ export default function Page({ params }: { params: { slug: string } }) {
         router.push('/payment');
       } else {
         dispatch(
-          showModal(() => {
+          showModal({func: () => {
             router.push('/payment');
-          }),
+          }}),
         );
       }
     }

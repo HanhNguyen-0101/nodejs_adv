@@ -4,6 +4,7 @@ import { createSlice } from '@reduxjs/toolkit';
 interface ModalState {
   isModalOpen: boolean;
   func?: any;
+  template?: any;
 }
 
 const initialState: ModalState = {
@@ -16,12 +17,17 @@ const modalSlice = createSlice({
   reducers: {
     showModal: (state, action) => {
       state.isModalOpen = true;
-      if (action.payload) {
-        state.func = action.payload;
+      if (action.payload?.func) {
+        state.func = action.payload.func;
+      } 
+      if (action.payload?.template) {
+        state.template = action.payload.template;
       }
     },
     hideModal: (state) => {
       state.isModalOpen = false;
+      state.func = null;
+      state.template = null;
     },
   },
 });

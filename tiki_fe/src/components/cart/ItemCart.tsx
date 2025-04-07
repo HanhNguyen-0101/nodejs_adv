@@ -46,7 +46,7 @@ export const ItemCart = ({ product, onQuantityChange }: PropsType) => {
       >
         <Image
           className='w-[80px] h-[80px] mx-3'
-          src={product.image}
+          src={`/${product.image}`}
           alt='product'
           width={80}
           height={80}

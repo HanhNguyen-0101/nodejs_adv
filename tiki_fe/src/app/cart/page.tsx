@@ -32,15 +32,17 @@ export default function Page() {
   }, 0);
 
   const handlePayNow = () => {
-    // if (user) {
+    if (user) {
       router.push('/payment');
-    // } else {
-    //   dispatch(
-    //     showModal(() => {
-    //       router.push('/payment');
-    //     }),
-    //   );
-    // }
+    } else {
+      dispatch(
+        showModal({
+          func: () => {
+            router.push('/payment');
+          },
+        }),
+      );
+    }
   };
   const onQuantityChange = (product: any, quantity: number) => {
     dispatch(

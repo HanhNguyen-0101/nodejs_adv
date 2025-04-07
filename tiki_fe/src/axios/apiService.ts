@@ -1,4 +1,4 @@
-import { fetchData, postData } from './apiFunctions';
+import { fetchData, patchData, postData } from './apiFunctions';
 
 // Example usage of reusable API calls
 
@@ -15,6 +15,8 @@ export const getProduct = (slug: string) => fetchData<any>(`/products/${slug}`);
 export const createOrder = (orderData: any) =>
   postData<typeof orderData, any>('/orders', orderData);
 
+export const updateProfile = (data: any) =>
+  patchData<typeof data, any>(`/users/${data.id}`, data.data);
 export const login = (data: any) => postData<typeof data, any>('/login', data);
 export const register = (data: any) =>
   postData<typeof data, any>('/register', data);
