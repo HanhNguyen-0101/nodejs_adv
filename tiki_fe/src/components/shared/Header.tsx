@@ -33,7 +33,7 @@ const initLoginValues = {
   phone: '',
 };
 const initRegisterValues = {
-  username: '',
+  name: '',
   email: '',
   password: '',
   confirmPassword: '',
@@ -77,34 +77,30 @@ export const Header = () => {
     }
   };
   const onLogin = async () => {
-    const user = users.users[2];
-    dispatch(onSaveUser(user));
-    // dispatch(showLoading());
-    // try {
-    //   const response = await login(loginStatus);
-    //   if (response.status === STATUS_CODE.CREATE_SUCCESS) {
-    //     dispatch(
-    //       showAlert({
-    //         type: 'success',
-    //         message: 'Login is successfully!',
-    //       }),
-    //     );
-    //     dispatch(onSaveUser(response.data));
-    //     dispatch(hideModal());
-    //     if (typeof func == 'function') {
-    //       func();
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error('Error submitting data', error);
-    //   dispatch(
-    //     showAlert({
-    //       type: 'error',
-    //       message: error?.response.data.message || error?.message,
-    //     }),
-    //   );
-    // }
-    // dispatch(hideLoading());
+    dispatch(showLoading());
+    try {
+      const response = await login(loginValues);
+      dispatch(
+        showAlert({
+          type: 'success',
+          message: 'Login is successfully!',
+        }),
+      );
+      dispatch(onSaveUser(response));
+      dispatch(hideModal());
+      if (typeof func == 'function') {
+        func();
+      }
+    } catch (error) {
+      console.error('Error submitting data', error);
+      dispatch(
+        showAlert({
+          type: 'error',
+          message: error?.response.data.message || error?.message,
+        }),
+      );
+    }
+    dispatch(hideLoading());
   };
   const handleRegister = (e: any) => {
     e.preventDefault();
@@ -121,16 +117,14 @@ export const Header = () => {
   const onRegister = async () => {
     dispatch(showLoading());
     try {
-      const response = register(registerValues);
-      if (response.status === STATUS_CODE.CREATE_SUCCESS) {
-        dispatch(
-          showAlert({
-            type: 'success',
-            message: 'Registration is successfully!',
-          }),
-        );
-        setLoginStatus(true);
-      }
+      await register(registerValues);
+      dispatch(
+        showAlert({
+          type: 'success',
+          message: 'Registration is successfully!',
+        }),
+      );
+      setLoginStatus(true);
     } catch (error) {
       console.error('Error submitting data', error);
       dispatch(
@@ -372,13 +366,13 @@ export const Header = () => {
                     <form onSubmit={handleRegister} method='post'>
                       <Input
                         onChange={onChange}
-                        name='username'
-                        value={registerValues.username}
+                        name='name'
+                        value={registerValues.name}
                         type='text'
                         className='outline-none mt-4 py-2 text-lg w-full'
                         placeholder='Username'
                       />
-                      {registerInvalid && !registerValues.username && (
+                      {registerInvalid && !registerValues.name && (
                         <p className='text-red-500'>
                           Please enter an valid value
                         </p>

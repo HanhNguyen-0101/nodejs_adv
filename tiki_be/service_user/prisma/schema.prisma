@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  categoryid  Int        @id @default(autoincrement())
+  name        String?    @db.VarChar(100)
+  description String?
+  img         String?    @db.VarChar(255)
+  products    products[]
+}
+
+model coupons {
+  couponid        Int               @id @default(autoincrement())
+  code            String?           @db.VarChar(50)
+  discount        Decimal?          @db.Decimal(10, 2)
+  expirationdate  DateTime?         @db.Timestamp(6)
+  product_coupons product_coupons[]
+}
+
+model order_items {
+  orderitemid Int       @id @default(autoincrement())
+  orderid     Int?
+  productid   Int?
+  quantity    Int?
+  price       Decimal?  @db.Decimal(10, 2)
+  orders      orders?   @relation(fields: [orderid], references: [orderid], onDelete: NoAction, onUpdate: NoAction)
+  products    products? @relation(fields: [productid], references: [productid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model orders {
+  orderid     Int           @id @default(autoincrement())
+  userid      Int?
+  totalamount Decimal?      @db.Decimal(10, 2)
+  createdat   DateTime?     @default(now()) @db.Timestamp(6)
+  order_items order_items[]
+  users       users?        @relation(fields: [userid], references: [userid], onDelete: NoAction, onUpdate: NoAction)
+  shippings   shippings[]
+}
+
+model product_coupons {
+  productid Int
+  couponid  Int
+  coupons   coupons  @relation(fields: [couponid], references: [couponid], onDelete: NoAction, onUpdate: NoAction)
+  products  products @relation(fields: [productid], references: [productid], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([productid, couponid])
+}
+
+model product_tags {
+  productid Int
+  tagid     Int
+  products  products @relation(fields: [productid], references: [productid], onDelete: NoAction, onUpdate: NoAction)
+  tags      tags     @relation(fields: [tagid], references: [tagid], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([productid, tagid])
+}
+
+model products {
+  productid       Int               @id @default(autoincrement())
+  name            String?           @db.VarChar(100)
+  description     String?
+  price           Decimal?          @db.Decimal(10, 2)
+  stock           Int?
+  madein          String?           @db.VarChar(100)
+  rating          Decimal?          @db.Decimal(3, 2)
+  discount        Decimal?          @db.Decimal(10, 2)
+  image           String?           @db.VarChar(255)
+  maxdeliveryday  Int?
+  images          String?           @db.VarChar(255)
+  shopid          Int?
+  categoryid      Int?
+  order_items     order_items[]
+  product_coupons product_coupons[]
+  product_tags    product_tags[]
+  categories      categories?       @relation(fields: [categoryid], references: [categoryid], onDelete: NoAction, onUpdate: NoAction)
+  shops           shops?            @relation(fields: [shopid], references: [shopid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model shippings {
+  shippingid     Int       @id @default(autoincrement())
+  orderid        Int?
+  address        String?   @db.VarChar(255)
+  shippingmethod String?   @db.VarChar(100)
+  cost           Decimal?  @db.Decimal(10, 2)
+  deliveredat    DateTime? @db.Timestamp(6)
+  orders         orders?   @relation(fields: [orderid], references: [orderid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model shops {
+  shopid    Int        @id @default(autoincrement())
+  name      String?    @db.VarChar(100)
+  official  Boolean?
+  rating    Decimal?   @db.Decimal(3, 2)
+  location  String?    @db.VarChar(255)
+  createdat DateTime?  @default(now()) @db.Timestamp(6)
+  products  products[]
+}
+
+model tags {
+  tagid        Int            @id @default(autoincrement())
+  name         String?        @db.VarChar(100)
+  product_tags product_tags[]
+}
+
+model users {
+  userid    Int       @id @default(autoincrement())
+  name      String?   @db.VarChar(100)
+  email     String?   @unique @db.VarChar(100)
+  password  String?   @db.VarChar(100)
+  phone     String?   @unique @db.VarChar(15)
+  address   String?   @db.VarChar(255)
+  createdat DateTime? @default(now()) @db.Timestamp(6)
+  orders    orders[]
+}

@@ -27,49 +27,7 @@ export default function Page() {
     deliveryMethod: 1,
     paymentMethod: 1,
   });
-  const [curentAddress, setCurentAddress] = useState(user?.address || '');
 
-  const onChange = (e) => {
-    e.preventDefault();
-    setCurentAddress(e.target.value);
-  };
-  const handleAddressChange = async () => {
-    if (curentAddress) {
-      dispatch(showLoading());
-      try {
-        const response = await updateProfile({
-          id: user.id,
-          data: { address: curentAddress },
-        });
-        if (response.status === STATUS_CODE.SUCCESS) {
-          dispatch(
-            showAlert({
-              type: 'success',
-              message: 'Address is updated successfully!',
-            }),
-          );
-          dispatch(onSaveUser(response.data));
-          dispatch(hideModal());
-        }
-      } catch (error) {
-        console.error('Error submitting data', error);
-        dispatch(
-          showAlert({
-            type: 'error',
-            message: error?.response.data.message || error?.message,
-          }),
-        );
-      }
-      dispatch(hideLoading());
-    } else {
-      dispatch(
-        showAlert({
-          type: 'error',
-          message: 'Please enter an address',
-        }),
-      );
-    }
-  };
   const handleMethodChange = (e) => {
     e.preventDefault();
     const { value, name } = e.target;
@@ -105,38 +63,6 @@ export default function Page() {
     // }
     // dispatch(hideLoading());
   };
-  const handleProfileChange = () => {
-    dispatch(
-      showModal({
-        template: (
-          <div className='flex flex-col gap-5 mb-2'>
-            <span className='text-3xl font-semibold'>Xin chào,</span>
-            <span className='text-sm '>Thay đổi địa chỉ nhận hàng</span>
-            <form onSubmit={handleAddressChange} method='post'>
-              <Input
-                onChange={onChange}
-                name='address'
-                value={curentAddress}
-                type='text'
-                className='outline-none mt-4 hover:border-red-500 focus:border-red-500 py-2 text-xl w-full'
-                placeholder='Địa chỉ'
-              />
-              {!curentAddress && (
-                <p className='text-red-500'>Please enter an valid value</p>
-              )}
-              <button
-                type='submit'
-                className='w-full bg-red-500 p-2 hover:bg-red-600 border-none my-5 text-white rounded-md text-xl'
-              >
-                Lưu
-              </button>
-            </form>
-          </div>
-        ),
-      }),
-    );
-  };
-
   const coupons = [];
   carts.forEach((cart) => {
     const index = coupons?.findIndex((coupon) => coupon.id == cart.coupon?.id);
@@ -223,12 +149,6 @@ export default function Page() {
           <div className='bg-white p-4 rounded-md'>
             <div className='flex justify-between'>
               <span>Giao tới</span>
-              <button
-                onClick={handleProfileChange}
-                className='text-blue-500 text-sm'
-              >
-                Thay đổi
-              </button>
             </div>
             <hr className='my-2' />
             <span className='text-sm font-semibold'>

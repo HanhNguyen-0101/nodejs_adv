@@ -1,0 +1,10 @@
+user signup/login - password: lana
+{
+    "userid": 6,
+    "name": "Lana Nguyen",
+    "email": "lana.nguyen@example.com",
+    "password": "$2b$10$KeyITtGkFezZSQGPu0Y3W.56VbInhK8N7oyswi2VoX/A36Ee4bvHa",
+    "phone": "0901234021",
+    "address": "123 Le Duan Street, Da Nang",
+    "createdat": "2025-04-08T16:41:56.190Z"
+}
