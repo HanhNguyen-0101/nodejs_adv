@@ -1,4 +1,4 @@
-import { fetchData, patchData, postData } from './apiFunctions';
+import { fetchData, postData } from './apiFunctions';
 
 // Example usage of reusable API calls
 export const login = (data: any) =>
@@ -7,8 +7,6 @@ export const register = (data: any) =>
   postData<typeof data, any>('/auth/signup', data);
 
 export const getUsers = () => fetchData<any[]>('/users');
-export const updateProfile = (data: any) =>
-  patchData<typeof data, any>(`/users/${data.id}`, data.data);
 
 export const getProducts = (p0?: {
   filter: { categoryId: number; tagId: number };

@@ -27,16 +27,3 @@ export const postData = async <Req, Res>(
     throw error;
   }
 };
-
-export const patchData = async <Req, Res>(
-  url: string,
-  body: Req,
-): Promise<Res> => {
-  try {
-    const response = await axiosInstance.patch<Res>(url, body);
-    return response.data; // Type-safe response data
-  } catch (error) {
-    console.error(`Error patching data to ${url}:`, error);
-    throw error;
-  }
-};

@@ -15,7 +15,7 @@ import { hideModal, showModal } from '@/store/modalSlice';
 import { hideLoading, showLoading } from '@/store/loadingSlice';
 import { showAlert } from '@/store/alertSlice';
 import { onSaveUser } from '@/store/userSlice';
-import { createOrder, updateProfile } from '@/axios/apiService';
+import { createOrder } from '@/axios/apiService';
 
 export default function Page() {
   const router = useRouter();

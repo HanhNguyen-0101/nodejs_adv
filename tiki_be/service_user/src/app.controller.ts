@@ -26,12 +26,12 @@ export class AppController {
   }
 
   @MessagePattern('users.find_one')
-  async findOne(payload: { id: string }) {
+  async findOne(payload: { id: number }) {
     return await this.appService.findOne({ userid: +payload.id });
   }
 
   @MessagePattern('users.update')
-  async update(payload: { id: string; updateUserDto: UpdateUserDto }) {
+  async update(payload: { id: number; updateUserDto: UpdateUserDto }) {
     return await this.appService.update({
       where: { userid: +payload.id },
       data: payload.updateUserDto,
@@ -39,7 +39,7 @@ export class AppController {
   }
 
   @MessagePattern('users.remove')
-  async remove(payload: { id: string }) {
+  async remove(payload: { id: number }) {
     return await this.appService.remove({ userid: +payload.id });
   }
 }

@@ -14,9 +14,9 @@ import { OrderItemsModule } from './order_items/order_items.module';
 @Module({
   imports: [
     UsersModule,
-    // ShopsModule,
-    // CategoriesModule,
-    // ProductsModule,
+    ShopsModule,
+    CategoriesModule,
+    ProductsModule,
     // OrdersModule,
     // OrderItemsModule,
     // ShippingModule,
