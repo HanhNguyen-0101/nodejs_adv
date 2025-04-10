@@ -18,7 +18,9 @@ export default function Page() {
 
   const coupons = [];
   carts.forEach((cart) => {
-    const index = coupons?.findIndex((coupon) => coupon.id == cart.coupon?.id);
+    const index = coupons?.findIndex(
+      (coupon) => coupon.couponid == cart.coupon?.couponid,
+    );
     if (index == -1 && cart.coupon) coupons.push(cart.coupon);
   });
   const totalPrice = carts.reduce((totalPrice, item) => {
@@ -52,15 +54,7 @@ export default function Page() {
       }),
     );
   };
-  console.log(
-    '------',
-    carts,
-    user,
-    coupons,
-    totalPrice,
-    totalCoupon,
-    totalDiscount,
-  );
+
   return (
     <div className='w-[75%]'>
       <div className='uppercase font-medium text-xl mb-2'>Giỏ hàng</div>
@@ -123,7 +117,7 @@ export default function Page() {
                     {coupons?.map((i: any) => {
                       return (
                         <button
-                          key={i?.id}
+                          key={i?.couponid}
                           disabled={true}
                           className='text-xs bg-blue-600 text-white border rounded-lg border-gray-200 p-1 px-2'
                         >

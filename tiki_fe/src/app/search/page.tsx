@@ -25,14 +25,21 @@ export default function Page() {
     search();
   }, []);
 
+  useEffect(() => {
+    search();
+  }, [query, take, page]);
+
   const search = async () => {
     dispatch(showLoading());
     try {
-      // const productsRes = await getProducts({
-      //   filter: { searchTerm: query },
-      //   paging: { skip: (+currentPage - 1) * +take, take: +take },
-      // });
-      const productsRes = productsData;
+      const payload = {
+        skip: (+currentPage - 1) * +take,
+        take: +take,
+        searchTerm: query,
+      };
+
+      const productsRes = await getProducts(payload);
+      // const productsRes = productsData;
       setProducts(productsRes);
     } catch (error) {
       console.error('Error submitting data', error);

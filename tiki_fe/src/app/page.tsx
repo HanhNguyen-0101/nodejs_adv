@@ -11,9 +11,6 @@ import { getAll as getProductsSlice } from '@/store/productSlice';
 import { getCategories, getProducts, getTags } from '@/axios/apiService';
 import { CardProduct } from '@/components/shared/CardProduct';
 import { SliderBanner } from '@/components/home';
-import categoriesData from '@/data/categories.json';
-import tagsData from '@/data/tags.json';
-import productsData from '@/data/products_1.json';
 import { banners, PAGING } from '@/constants';
 
 export default function Home() {
@@ -42,15 +39,13 @@ export default function Home() {
 
   useEffect(() => {
     getProductData();
-  }, [filter.categoryId, filter.tagId]);
+  }, [filter]);
 
   const getData = async () => {
     dispatch(showLoading());
     try {
-      // const categoriesRes = await getCategories();
-      // const tagsRes = await getTags();
-      const categoriesRes = categoriesData.categories;
-      const tagsRes = tagsData.tags;
+      const categoriesRes = await getCategories();
+      const tagsRes = await getTags();
       dispatch(getCategoriesSlice(categoriesRes));
       dispatch(getTagsSlice(tagsRes));
     } catch (error) {}
@@ -60,11 +55,17 @@ export default function Home() {
   const getProductData = async () => {
     dispatch(showLoading());
     try {
-      // const productsRes = await getProducts({
-      //   filter,
-      //   paging: { skip: (paging.page - 1) * paging.take, take: paging.take },
-      // });
-      const productsRes = productsData;
+      let whereObj = {}, relateObj = {};
+      if (filter.categoryId) whereObj.categoryid = filter.categoryId;
+      if (filter.tagId) relateObj.tagid = filter.tagId;
+      const payload = {
+        skip: (paging.page - 1) * paging.take,
+        take: paging.take,
+      };
+      if (Object.keys(whereObj)?.length) payload.where = JSON.stringify(whereObj);
+      if (Object.keys(relateObj)?.length) payload.relate = JSON.stringify(relateObj);
+
+      const productsRes = await getProducts(payload);
       dispatch(getProductsSlice(productsRes));
     } catch (error) {}
     dispatch(hideLoading());
@@ -97,35 +98,39 @@ export default function Home() {
       }
     };
   });
-  console.log('0000', categories, tags, products);
 
   const handleCategoryChange = (categoryId: number) => {
     setFilter({
       ...filter,
       categoryId,
     });
+    setPaging({ page: 1, take: PAGING.TAKE });
   };
   const handleTagChange = (tagId: number) => {
     setFilter({
       ...filter,
       tagId,
     });
+    setPaging({ page: 1, take: PAGING.TAKE });
   };
   const handleLoadMore = async () => {
     setLoading(true);
     try {
-      // const productsRes = await getProducts({
-      //   filter,
-      //   paging: { skip: paging.page * paging.take, take: paging.take },
-      // });
-      const productsRes = {...productsData};
+      let whereObj = {}, relateObj = {};
+      if (filter.categoryId) whereObj.categoryid = filter.categoryId;
+      if (filter.tagId) relateObj.tagid = filter.tagId;
+      const payload = {
+        skip: paging.page * paging.take,
+        take: paging.take,
+      };
+      if (Object.keys(whereObj)?.length) payload.where = JSON.stringify(whereObj);
+      if (Object.keys(relateObj)?.length) payload.relate = JSON.stringify(relateObj);
 
-      productsRes.products = [
-        ...products.products,
-        ...productsRes.products,
-      ];
+      const productsRes = await getProducts(payload);
 
-      setPaging({...paging, page: paging.page + 1});
+      productsRes.products = [...products.products, ...productsRes.products];
+
+      setPaging({ ...paging, page: paging.page + 1 });
       dispatch(getProductsSlice(productsRes));
     } catch (error) {}
     setLoading(false);
@@ -161,9 +166,9 @@ export default function Home() {
         {(categories || []).map((i: any) => {
           return (
             <Button
-              key={i.id}
-              onClick={() => handleCategoryChange(i.id)}
-              className={`${filter.categoryId == i.id ? 'border-blue-500' : ''} flex flex-col items-center h-auto w-auto text-sm font-medium gap-2`}
+              key={i.categoryid}
+              onClick={() => handleCategoryChange(i.categoryid)}
+              className={`${filter.categoryId == i.categoryid ? 'border-blue-500' : ''} flex flex-col items-center h-auto w-auto text-sm font-medium gap-2`}
             >
               <Image
                 className='rounded-xl border border-gray-200'
@@ -195,9 +200,9 @@ export default function Home() {
             {(tags || []).map((i: any) => {
               return (
                 <Button
-                  onClick={() => handleTagChange(i.id)}
-                  key={i.id}
-                  className={`${filter.tagId == i.id ? 'bg-blue-100 border-b border-blue-500' : ''} w-36 h-16 border-transparent rounded-none flex flex-col items-center justify-center cursor-pointer`}
+                  onClick={() => handleTagChange(i.tagid)}
+                  key={i.tagid}
+                  className={`${filter.tagId == i.tagid ? 'bg-blue-100 border-b border-blue-500' : ''} w-36 h-16 border-transparent rounded-none flex flex-col items-center justify-center cursor-pointer`}
                 >
                   <span className='text-gray-500 text-xs'>{i.name}</span>
                 </Button>
@@ -211,13 +216,15 @@ export default function Home() {
             return <CardProduct data={product} key={product.id} />;
           })}
         </div>
-        {products?.total > products.products?.length && <Button
-          onClick={handleLoadMore}
-          loading={loading}
-          className='text-lg hover:bg-transparent bg-transparent p-5 border mt-10 px-20 self-center rounded-md text-blue-500 border-blue-500'
-        >
-          {loading ? 'Loading...' : 'Load more'}
-        </Button>}
+        {products?.total > products.products?.length && (
+          <Button
+            onClick={handleLoadMore}
+            loading={loading}
+            className='text-lg hover:bg-transparent bg-transparent p-5 border mt-10 px-20 self-center rounded-md text-blue-500 border-blue-500'
+          >
+            {loading ? 'Loading...' : 'Load more'}
+          </Button>
+        )}
       </div>
     </>
   );

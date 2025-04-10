@@ -37,16 +37,16 @@ export const ItemCart = ({ product, onQuantityChange }: PropsType) => {
     type: (product.maxDeliveryDay || 0) < 5 ? 'fast' : 'normal',
     date: product.maxDeliveryDay,
   };
-  console.log('------', product);
+  const imagesArr = product?.images?.split(';');
   return (
     <div className='ml-2 flex mb-5'>
       <Link
-        href={`/detail/${product.id}`}
+        href={`/detail/${product.productid}`}
         className='flex w-[45%] w-max-[45%] flex-row items-center'
       >
         <Image
           className='w-[80px] h-[80px] mx-3'
-          src={`/${product.image}`}
+          src={`/products/${imagesArr?.[0]}`}
           alt='product'
           width={80}
           height={80}

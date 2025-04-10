@@ -7,13 +7,13 @@ import { TagIcon } from '@heroicons/react/20/solid';
 
 type PropsType = {
   data: {
-    id: string;
-    image: string;
+    productid: string;
     name: string;
     price: number;
     rating?: number;
     shops: { official?: boolean };
     tags: Array<any>[];
+    images: string;
     stock: number;
 
     discount?: number;
@@ -27,8 +27,7 @@ export const CardProduct = ({
   ...rest
 }: PropsType & AllHTMLAttributes<HTMLDivElement>) => {
   const {
-    id,
-    image,
+    productid,
     name,
     price,
     rating,
@@ -38,19 +37,21 @@ export const CardProduct = ({
     madeIn,
     stock,
     maxDeliveryDay,
+    images,
   } = data;
 
   const shipping = {
     type: (maxDeliveryDay || 0) < 5 ? 'fast' : 'normal',
     date: maxDeliveryDay,
   };
+  const imagesArr = images?.split(';');
   return (
     <Link
-      href={`/detail/${id}`}
+      href={`/detail/${productid}`}
       className={`w-[16%] border bg-white border-gray-200 pb-1 rounded-md flex flex-col gap-1 hover:shadow-[0px_0px_20px_0px_rgba(0,0,0,0.1)] cursor-pointer flex-shrink-0 ${rest.className}`}
     >
       <Image
-        src={image}
+        src={`/products/${imagesArr?.[0]}`}
         width={200}
         height={200}
         alt={name}
@@ -73,7 +74,7 @@ export const CardProduct = ({
               <div className='mt-1 mb-3'>
                 {tags.map((i) => {
                   return (
-                    <Tag key={i.id} color='red' className='w-fit font-bold'>
+                    <Tag key={i.tagid} color='red' className='w-fit font-bold'>
                       <TagIcon className='h-4 w-3 inline-block' /> {i.name}
                     </Tag>
                   );

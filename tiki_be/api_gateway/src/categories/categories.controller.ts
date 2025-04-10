@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Controller,
   Get,
@@ -19,7 +20,10 @@ export class CategoriesController {
 
   @Post()
   async create(@Body() createCategoryDto: CreateCategoryDto) {
-    const result$ = this.productService.send('categories.create', createCategoryDto);
+    const result$ = this.productService.send(
+      'categories.create',
+      createCategoryDto,
+    );
     return await lastValueFrom(result$);
   }
 
@@ -30,22 +34,25 @@ export class CategoriesController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     const result$ = this.productService.send('categories.find_one', { id });
     return await lastValueFrom(result$);
   }
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
-    const result$ = this.productService.send('categories.update', { id, updateCategoryDto });
+    const result$ = this.productService.send('categories.update', {
+      id,
+      updateCategoryDto,
+    });
     return await lastValueFrom(result$);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: number) {
     const result$ = this.productService.send('categories.remove', { id });
     return await lastValueFrom(result$);
   }

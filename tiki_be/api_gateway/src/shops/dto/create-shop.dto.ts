@@ -1,10 +1,22 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsDecimal } from 'class-validator';
 
 export class CreateShopDto {
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  @IsOptional()
+  name?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  official?: boolean;
+
+  @IsDecimal()
+  @IsOptional()
+  rating?: number;
 
   @IsString()
-  address: string;
+  @IsOptional()
+  location?: string;
+
+  @IsOptional()
+  createdat?: Date;
 }

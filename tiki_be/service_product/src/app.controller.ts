@@ -32,12 +32,13 @@ export class AppController {
       skip?: string;
       take?: string;
       orderBy?: string;
-      where?: any;
+      where?: string;
+      relate?: string;
     }
   ) {
-    const { searchTerm, skip, take, orderBy, where } = payload;
-    let orderByParsed;
-  
+    const { searchTerm, skip, take, orderBy, where, relate } = payload;
+    let orderByParsed, whereParsed, relateParsed;
+
     // Safely parse orderBy if provided
     if (orderBy) {
       try {
@@ -46,13 +47,29 @@ export class AppController {
         throw new BadRequestException('Invalid JSON format for orderBy');
       }
     }
+
+    if (where) {
+      try {
+        whereParsed = JSON.parse(where);
+      } catch (e) {
+        throw new BadRequestException('Invalid JSON format for where');
+      }
+    }
+    if (relate) {
+      try {
+        relateParsed = JSON.parse(relate);
+      } catch (e) {
+        throw new BadRequestException('Invalid JSON format for where');
+      }
+    }
   
     return this.appService.findAll({
       searchTerm,
-      where,
+      where: whereParsed,
       skip: skip ? Number(skip) : undefined, // Convert skip to number
       take: take ? Number(take) : undefined, // Convert take to number
       orderBy: orderByParsed,
+      relate: relateParsed,
     });
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Controller,
   Get,
@@ -12,7 +13,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { CreateShopDto } from './dto/create-shop.dto';
-  
+
 @Controller('shops')
 export class ShopsController {
   constructor(@Inject('PRODUCT_NAME') private productService: ClientProxy) {}
@@ -30,19 +31,22 @@ export class ShopsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     const result$ = this.productService.send('shops.find_one', { id });
     return await lastValueFrom(result$);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateShopDto: UpdateShopDto) {
-    const result$ = this.productService.send('shops.update', { id, updateShopDto });
+  async update(@Param('id') id: number, @Body() updateShopDto: UpdateShopDto) {
+    const result$ = this.productService.send('shops.update', {
+      id,
+      updateShopDto,
+    });
     return await lastValueFrom(result$);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: number) {
     const result$ = this.productService.send('shops.remove', { id });
     return await lastValueFrom(result$);
   }

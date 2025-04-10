@@ -9,8 +9,11 @@ export const register = (data: any) =>
 export const getUsers = () => fetchData<any[]>('/users');
 
 export const getProducts = (p0?: {
-  filter: { categoryId: number; tagId: number };
-  paging: { skip: number; take: number };
+  where?: string;
+  relate?: string;
+  skip?: number;
+  take?: number;
+  searchTerm?: string;
 }) => fetchData<any[]>('/products', p0);
 export const getProduct = (slug: string) => fetchData<any>(`/products/${slug}`);
 

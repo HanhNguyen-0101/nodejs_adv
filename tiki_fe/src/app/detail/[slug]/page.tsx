@@ -16,26 +16,21 @@ import { Input, Rate, Tag, Tooltip } from 'antd';
 import { formatCurrency } from '@/utils';
 import { SliderBanner } from '@/components/home';
 import { ListProduct } from '@/components/shared';
-import productsData from '@/data/products_1.json';
-import { CardProduct } from '@/components/shared/CardProduct';
 import { useDispatch, useSelector } from 'react-redux';
 import { hideLoading, showLoading } from '@/store/loadingSlice';
 import { getProduct, getProducts } from '@/axios/apiService';
 import { RootState } from '@/store';
 import { banners } from '@/constants';
 import { addItem } from '@/store/cartSlice';
-import { showModal } from '@/store/modalSlice';
-import { useRouter } from 'next/navigation';
 import { showAlert } from '@/store/alertSlice';
 
 export default function Page({ params }: { params: { slug: string } }) {
-  const router = useRouter();
   const dispatch = useDispatch();
   moment.locale('vi');
   const { user } = useSelector((state: RootState) => state.user);
   const { carts } = useSelector((state: RootState) => state.cart);
 
-  const cartOfProduct = carts?.find((c) => c?.id == params.slug);
+  const cartOfProduct = carts?.find((c) => c?.productid == params.slug);
 
   const [product, setProduct] = useState(null);
   const [products, setProducts] = useState([]);
@@ -47,16 +42,19 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   useEffect(() => {
     getProductDetail();
-    getProductData();
   }, []);
+
+  useEffect(() => {
+    getProductData();
+  }, [product]);
 
   const getProductDetail = async () => {
     dispatch(showLoading());
     try {
-      // const productRes = await getProduct(params.slug);
-      const productRes = productsData.products.find((i) => i.id == params.slug);
+      const productRes = await getProduct(params.slug);
+      const imagesArr = productRes?.images?.split(';');
       setProduct(productRes);
-      setImage(productRes.image);
+      setImage(imagesArr?.[0]);
     } catch (error) {
       console.error('Error submitting data', error);
       throw error;
@@ -67,10 +65,10 @@ export default function Page({ params }: { params: { slug: string } }) {
   const getProductData = async () => {
     dispatch(showLoading());
     try {
-      // const productsResponse = await getProducts();
-      // const productRes = [...productsResponse?.products];
-      // productRes.filter(i => i.categoryId == product?.categoryId);
-      const productsRes = productsData.products;
+      const productsResponse = await getProducts({
+        relate: JSON.stringify({ categoryid: product?.categoryid }),
+      });
+      const productsRes = [...productsResponse?.products];
       setProducts(productsRes);
     } catch (error) {}
     dispatch(hideLoading());
@@ -119,31 +117,31 @@ export default function Page({ params }: { params: { slug: string } }) {
       dispatch(
         showAlert({
           type: 'error',
-          message: 'Vui lòng thêm số lượng'
+          message: 'Vui lòng thêm số lượng',
         }),
       );
     }
   };
 
-  console.log('-----detail-------', product, products, carts, cartOfProduct);
+  const imagesArr = product?.images?.split(';');
   return (
     <div className='flex flex-row mb-5 gap-6 w-[90%]'>
       <div className='flex flex-col w-[27%] bg-white p-4 rounded-md sticky h-fit top-5'>
         <Image
           className='rounded-lg w-full'
-          src={image}
+          src={`/products/${image}`}
           width={368}
           height={368}
           alt='Product'
           unoptimized
         />
         <div className='flex flex-row gap-2 mt-2'>
-          {product?.images?.map((i: string) => {
+          {imagesArr?.map((i: string) => {
             return (
               <Image
                 key={i}
                 className='border-gray-100 border p-1 rounded-md '
-                src={`/${i}`}
+                src={`/products/${i}`}
                 width={47}
                 height={47}
                 onMouseEnter={() => {
@@ -173,12 +171,16 @@ export default function Page({ params }: { params: { slug: string } }) {
               <span className='text-blue-500'>{product?.shops?.name}</span>
             </span>
           </div>
-          {product?.tags && product?.tags.length && (
+          {product?.product_tags && product?.product_tags.length && (
             <div className='my-3 text-right'>
-              {product?.tags.map((i) => {
+              {product?.product_tags.map((i) => {
                 return (
-                  <Tag key={i.id} color='red' className='w-fit font-bold'>
-                    <TagIcon className='h-4 w-3 inline-block' /> {i.name}
+                  <Tag
+                    key={i?.tags.tagid}
+                    color='red'
+                    className='w-fit font-bold'
+                  >
+                    <TagIcon className='h-4 w-3 inline-block' /> {i?.tags.name}
                   </Tag>
                 );
               })}
@@ -245,22 +247,22 @@ export default function Page({ params }: { params: { slug: string } }) {
             </span>
           </div>
         </div>
-        {product?.coupons && product?.coupons?.length && (
+        {product?.product_coupons && product?.product_coupons?.length && (
           <div className='bg-white p-4 rounded-lg h-fit'>
             <span className='text-lg font-semibold block mb-2'>
               Ưu đãi khác
             </span>
             <div className='flex flex-col justify-between'>
-              <div className='mb-2'>{product?.coupons?.length} Mã giảm giá</div>
+              <div className='mb-2'>{product?.product_coupons?.length} Mã giảm giá</div>
               <div className='flex flex-row gap-3 items-center text-blue-600 font-medium'>
-                {product?.coupons.map((i: any) => {
+                {product?.product_coupons.map((i: any) => {
                   return (
                     <button
-                      key={i.id}
-                      onClick={() => handleCouponChange(i)}
-                      className={`${coupon?.id == i.id ? 'bg-blue-600 text-white' : ''} border rounded-lg border-gray-200 p-1 px-2`}
+                      key={i.coupons.couponid}
+                      onClick={() => handleCouponChange(i.coupons)}
+                      className={`${coupon?.couponid == i.coupons.couponid ? 'bg-blue-600 text-white' : ''} border rounded-lg border-gray-200 p-1 px-2`}
                     >
-                      {i.code}
+                      {i.coupons.code}
                     </button>
                   );
                 })}

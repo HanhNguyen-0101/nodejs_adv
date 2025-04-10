@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Body,
@@ -19,7 +20,9 @@ export class UsersController {
   constructor(@Inject('USER_NAME') private userService: ClientProxy) {}
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto) {
-    return await lastValueFrom(this.userService.send('users.create', createUserDto));
+    return await lastValueFrom(
+      this.userService.send('users.create', createUserDto),
+    );
   }
 
   @Get()
@@ -28,18 +31,22 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOneUser(@Param('id') id: string) {
+  async findOneUser(@Param('id') id: number) {
     return await lastValueFrom(this.userService.send('users.find_one', { id }));
   }
 
   @Patch(':id')
-  async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return await lastValueFrom(this.userService
-      .send('users.update', { id, updateUserDto }));
+  async updateUser(
+    @Param('id') id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await lastValueFrom(
+      this.userService.send('users.update', { id, updateUserDto }),
+    );
   }
 
   @Delete(':id')
-  async removeUser(@Param('id') id: string) {
+  async removeUser(@Param('id') id: number) {
     return await lastValueFrom(this.userService.send('users.remove', { id }));
   }
 }

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Body,
   Controller,
@@ -23,7 +25,9 @@ export class ProductsController {
     @Query('searchTerm') searchTerm?: string,
     @Query('skip') skip?: string,
     @Query('take') take?: string,
-    @Query('orderBy') orderBy?: string, // JSON string from query
+    @Query('where') where?: string,
+    @Query('relate') relate?: string,
+    @Query('orderBy') orderBy?: string,
   ) {
     const products = await lastValueFrom(
       this.productService.send('products.find_all', {
@@ -32,6 +36,8 @@ export class ProductsController {
         skip,
         take,
         orderBy,
+        where,
+        relate,
       }),
     );
 
@@ -63,7 +69,7 @@ export class ProductsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     return await lastValueFrom(
       this.productService.send('products.find_one', { id }),
     );
@@ -71,7 +77,7 @@ export class ProductsController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return await lastValueFrom(
@@ -80,7 +86,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: number) {
     return await lastValueFrom(
       this.productService.send('products.remove', { id }),
     );

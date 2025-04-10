@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsDecimal, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsDecimal,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -6,18 +12,46 @@ export class CreateProductDto {
   name: string;
 
   @IsString()
-  description: string;
+  @IsOptional()
+  description?: string;
 
   @IsDecimal()
-  price: number;
+  @IsOptional()
+  price?: number;
 
-  @IsInt()
-  @IsNotEmpty()
-  quantity: number;
+  @IsNumber()
+  @IsOptional()
+  stock?: number;
 
-  @IsInt()
-  category_id: number;
+  @IsString()
+  @IsOptional()
+  madein?: string;
 
-  @IsInt()
-  shop_id: number;
+  @IsDecimal()
+  @IsOptional()
+  rating?: number;
+
+  @IsDecimal()
+  @IsOptional()
+  discount?: number;
+
+  @IsString()
+  @IsOptional()
+  image?: string;
+
+  @IsNumber()
+  @IsOptional()
+  maxdeliveryday?: number;
+
+  @IsString()
+  @IsOptional()
+  images?: string;
+
+  @IsNumber()
+  @IsOptional()
+  shopid?: number;
+
+  @IsNumber()
+  @IsOptional()
+  categoryid?: number;
 }

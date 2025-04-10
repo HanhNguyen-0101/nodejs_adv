@@ -23,6 +23,7 @@ export class AppService {
     where?: Prisma.productsWhereInput;
     orderBy?: Prisma.productsOrderByWithRelationInput;
     searchTerm?: string;
+    relate?: { tagid?: number; couponid?: number };
   }): Promise<{ products: any; total: number }> {
     // const cacheKey = 'products_list'; // Unique cache key
     // const cachedData = await this.cacheService.getProductCache(cacheKey);
@@ -34,10 +35,20 @@ export class AppService {
 
     console.log('Fetching data from database');
 
-    const { skip, take, cursor, where, orderBy, searchTerm } = params;
+    const { skip, take, cursor, where, orderBy, searchTerm, relate } = params;
 
     const enhancedWhere: Prisma.productsWhereInput = {
       ...where,
+      product_tags: {
+        some: {
+          tagid: relate?.tagid,
+        },
+      },
+      product_coupons: {
+        some: {
+          couponid: relate?.couponid,
+        },
+      },
       OR: searchTerm
         ? [
             { name: { contains: searchTerm, mode: 'insensitive' } },
@@ -56,8 +67,18 @@ export class AppService {
       include: {
         categories: true,
         shops: true,
-        product_coupons: true,
-        product_tags: true,
+        product_coupons: {
+          include: {
+            products: true,
+            coupons: true,
+          }
+        },
+        product_tags: {
+          include: {
+            products: true,
+            tags: true,
+          }
+        },
       },
     });
 
@@ -91,8 +112,18 @@ export class AppService {
       include: {
         categories: true,
         shops: true,
-        product_coupons: true,
-        product_tags: true,
+        product_coupons: {
+          include: {
+            products: true,
+            coupons: true,
+          }
+        },
+        product_tags: {
+          include: {
+            products: true,
+            tags: true,
+          }
+        },
       },
     }) as Promise<Product | null>;
   }
@@ -103,8 +134,18 @@ export class AppService {
       include: {
         shops: true,
         categories: true,
-        product_coupons: true,
-        product_tags: true,
+        product_coupons: {
+          include: {
+            products: true,
+            coupons: true,
+          }
+        },
+        product_tags: {
+          include: {
+            products: true,
+            tags: true,
+          }
+        },
       },
     });
 
@@ -132,8 +173,18 @@ export class AppService {
       include: {
         shops: true,
         categories: true,
-        product_coupons: true,
-        product_tags: true,
+        product_coupons: {
+          include: {
+            products: true,
+            coupons: true,
+          }
+        },
+        product_tags: {
+          include: {
+            products: true,
+            tags: true,
+          }
+        },
       },
     });
 
@@ -155,8 +206,18 @@ export class AppService {
       include: {
         shops: true,
         categories: true,
-        product_coupons: true,
-        product_tags: true,
+        product_coupons: {
+          include: {
+            products: true,
+            coupons: true,
+          }
+        },
+        product_tags: {
+          include: {
+            products: true,
+            tags: true,
+          }
+        },
       },
     });
 

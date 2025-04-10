@@ -5,7 +5,7 @@ export const STATUS_CODE = {
 };
 
 export const PAGING = {
-  TAKE: 10,
+  TAKE: 6,
 };
 
 export const SHIPPING = {
