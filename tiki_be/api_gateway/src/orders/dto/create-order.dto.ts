@@ -1,10 +1,14 @@
-import { IsInt, IsDecimal, IsNotEmpty } from 'class-validator';
+import { IsNumber, IsOptional, IsDecimal } from 'class-validator';
 
 export class CreateOrderDto {
-  @IsInt()
-  @IsNotEmpty()
-  user_id: number;
+  @IsNumber()
+  @IsOptional()
+  userid?: number;
 
   @IsDecimal()
-  total: number;
+  @IsOptional()
+  totalamount?: number;
+
+  @IsOptional()
+  createdat?: Date;
 }

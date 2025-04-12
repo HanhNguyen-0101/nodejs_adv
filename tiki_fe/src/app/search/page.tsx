@@ -1,6 +1,5 @@
 'use client';
 import { Suspense, useEffect, useState } from 'react';
-import productsData from '@/data/products_1.json';
 import { CardProduct } from '@/components/shared/CardProduct';
 import { useDispatch } from 'react-redux';
 import { useSearchParams } from 'next/navigation';
@@ -14,11 +13,9 @@ export default function Page() {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const query = searchParams.get('query');
-  const page = searchParams.get('page') || 1;
-  const take = searchParams.get('take') || PAGING.TAKE;
 
   const [products, setProducts] = useState({});
-  const [currentPage, setCurrentPage] = useState(page);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -27,19 +24,18 @@ export default function Page() {
 
   useEffect(() => {
     search();
-  }, [query, take, page]);
+  }, [query]);
 
   const search = async () => {
     dispatch(showLoading());
     try {
       const payload = {
-        skip: (+currentPage - 1) * +take,
-        take: +take,
+        skip: 0,
+        take: PAGING.TAKE,
         searchTerm: query,
       };
 
       const productsRes = await getProducts(payload);
-      // const productsRes = productsData;
       setProducts(productsRes);
     } catch (error) {
       console.error('Error submitting data', error);
@@ -57,16 +53,17 @@ export default function Page() {
   const handleLoadMore = async () => {
     setLoading(true);
     try {
-      // const productsRes = await getProducts({
-      //   filter: { searchTerm: query },
-      //   paging: { skip: +currentPage * +take, take: +take },
-      // });
-      const productsRes = { ...productsData };
+      const payload = {
+        skip: currentPage * PAGING.TAKE,
+        take: PAGING.TAKE,
+        searchTerm: query,
+      };
 
+      const productsRes = await getProducts(payload);
       productsRes.products = [...products.products, ...productsRes.products];
 
       setProducts(productsRes);
-      setCurrentPage(+currentPage + 1);
+      setCurrentPage(currentPage + 1);
     } catch (error) {}
     setLoading(false);
   };

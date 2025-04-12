@@ -11,7 +11,7 @@ import { TagsModule } from './tags/tags.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { ProductTagsModule } from './product_tags/product_tags.module';
 import { ProductCouponsModule } from './product_coupons/product_coupons.module';
-import { ShippingModule } from './shipping/shipping.module';
+import { ShippingsModule } from './shippings/shippings.module';
 import { OrdersModule } from './orders/orders.module';
 import { OrderItemsModule } from './order_items/order_items.module';
 
@@ -25,9 +25,9 @@ import { OrderItemsModule } from './order_items/order_items.module';
     ProductTagsModule,
     ProductCouponsModule,
     ProductsModule,
-    // OrdersModule,
-    // OrderItemsModule,
-    // ShippingModule,
+    OrdersModule,
+    OrderItemsModule,
+    ShippingsModule,
     AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],

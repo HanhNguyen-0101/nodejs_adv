@@ -26,7 +26,7 @@ export class OrderItem {
   })
   orders?: Order;
 
-  @ManyToOne(() => Product, (product) => product.order_items, {
+  @ManyToOne(() => Product, (product) => product.productid, {
     onDelete: 'NO ACTION',
     onUpdate: 'NO ACTION',
     nullable: true,

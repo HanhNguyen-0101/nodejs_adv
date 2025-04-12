@@ -1,5 +1,5 @@
-import { ProductTags } from 'src/product_tags/entities/product_tag.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { ProductTags } from './product_tag.entity';
 
 @Entity('tags')
 export class Tag {

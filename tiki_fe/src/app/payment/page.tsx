@@ -16,6 +16,7 @@ import { hideLoading, showLoading } from '@/store/loadingSlice';
 import { showAlert } from '@/store/alertSlice';
 import { onSaveUser } from '@/store/userSlice';
 import { createOrder } from '@/axios/apiService';
+import moment from 'moment';
 
 export default function Page() {
   const router = useRouter();
@@ -37,35 +38,49 @@ export default function Page() {
     });
   };
   const handleMakeOrder = async () => {
-    dispatch(
-      addOrder({
-        user,
-        carts,
-        ...currentMethod,
-      }),
-    );
-    router.push('/order');
+    dispatch(showLoading());
+    try {
+      const order_items = carts?.map((c) => ({
+        productid: c.productid,
+        quantity: c.quantity,
+        price: (+c.price - +c.discount) * +c.quantity,
+      }));
+      let maxDeliveryDay = 0;
+      carts.forEach((c) => {
+        if (c.maxdeliveryday > maxDeliveryDay)
+          maxDeliveryDay = c.maxdeliveryday;
+      });
 
-    // dispatch(showLoading());
-    // try {
-    //   const orderRes = await createOrder({
-    //     user,
-    //     carts,
-    //     ...currentMethod,
-    //   });
-    //   if (orderRes.status === STATUS_CODE.CREATE_SUCCESS) {
-    //     dispatch(addOrder(orderRes.data));
-    //     router.push('/order');
-    //   }
-    // } catch (error) {
-    //   console.error('Error submitting data', error);
-    //   throw error;
-    // }
-    // dispatch(hideLoading());
+      const shippings = {
+        address: user.address,
+        shippingmethod: SHIPPING.METHODS.find(
+          (i) => i.id == currentMethod.paymentMethod,
+        )?.name,
+        cost: SHIPPING.FEES.find((i) => i.id == currentMethod.deliveryMethod)
+          ?.fee,
+        deliveredat: moment().add(maxDeliveryDay, 'days'),
+      };
+      const payload = {
+        users: user,
+        order_items,
+        shippings,
+        totalamount: totalPrice + shippingFee - totalDiscount - totalCoupon,
+      };
+      const orderRes = await createOrder(payload);
+
+      dispatch(addOrder(orderRes));
+      router.push('/order');
+    } catch (error) {
+      console.error('Error submitting data', error);
+      throw error;
+    }
+    dispatch(hideLoading());
   };
   const coupons = [];
   carts.forEach((cart) => {
-    const index = coupons?.findIndex((coupon) => coupon.id == cart.coupon?.id);
+    const index = coupons?.findIndex(
+      (coupon) => coupon.couponid == cart.coupon?.couponid,
+    );
     if (index == -1 && cart.coupon) coupons.push(cart.coupon);
   });
   const totalPrice = carts.reduce((totalPrice, item) => {
@@ -182,7 +197,7 @@ export default function Page() {
                 {coupons?.map((i: any) => {
                   return (
                     <button
-                      key={i?.id}
+                      key={i?.couponid}
                       disabled={true}
                       className='text-xs bg-blue-600 text-white border rounded-lg border-gray-200 p-1 px-2'
                     >

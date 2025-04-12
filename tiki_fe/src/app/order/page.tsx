@@ -9,7 +9,7 @@ import moment from 'moment';
 import 'moment/locale/vi';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { clearCart } from '@/store/cartSlice';
+import { clearCart, clearOrder } from '@/store/cartSlice';
 
 export default function Page() {
   const router = useRouter();
@@ -19,25 +19,41 @@ export default function Page() {
   const { user } = useSelector((state: RootState) => state.user);
   useEffect(() => {
     dispatch(clearCart());
-  }, [])
-  
+  }, []);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = ''; // Required for modern browsers
+      dispatch(clearOrder());
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   if (!(orders && user)) {
     router.push('/');
     return;
   }
-  const { carts } = orders;
-  let maxDeliveryDay = 0;
-  carts.forEach((c) => {
-    if (c.maxDeliveryDay > maxDeliveryDay) maxDeliveryDay = c.maxDeliveryDay;
-  });
+  let deliveredat = moment();
+  if (orders?.shippings) {
+    orders?.shippings?.forEach((c) => {
+      if (moment(c.deliveredat).isAfter(moment(deliveredat)))
+        deliveredat = c.deliveredat;
+    });
+  }
+
   return (
     <div className=' w-[75%]'>
       <div className='text-lg font-semibold mb-4'>Đơn hàng</div>
       <div className='flex flex-row gap-4 w-full'>
         <div className='bg-white p-4 flex-col w-[70%] rounded-lg'>
           <div className='text-green-500 text-lg font-medium'>
-            Giao vào{' '}
-            {moment().add(maxDeliveryDay, 'days').format('dddd, DD/MM')}
+            Giao vào {moment(deliveredat).format('dddd, DD/MM')}
           </div>
           <div className='text-xs text-gray-500'>
             Được giao bởi {user?.shops?.name}
@@ -48,7 +64,13 @@ export default function Page() {
             mode='left'
             items={[
               {
-                label: <span className=''>{moment().add(maxDeliveryDay - 1, 'days').add(14, 'hours').format('HH:mm')}</span>,
+                label: (
+                  <span className=''>
+                    {moment(deliveredat)
+                      .subtract({ hours: 10 })
+                      .format('HH:mm')}
+                  </span>
+                ),
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
                 children: (
                   <div className='w-[30rem]'>
@@ -56,7 +78,9 @@ export default function Page() {
                       Đang giao hàng
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().add(maxDeliveryDay - 1, 'days').add(14, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment(deliveredat)
+                        .subtract({ hours: 10 })
+                        .format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
 
                     <div className=''>Nhân viên đang giao hàng</div>
@@ -65,7 +89,13 @@ export default function Page() {
                 ),
               },
               {
-                label: <span className=''>{moment().add(maxDeliveryDay - 1, 'days').add(8, 'hours').format('HH:mm')}</span>,
+                label: (
+                  <span className=''>
+                    {moment(deliveredat)
+                      .subtract({ hours: 12 })
+                      .format('HH:mm')}
+                  </span>
+                ),
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
                 children: (
                   <div className='w-[30rem]'>
@@ -73,7 +103,9 @@ export default function Page() {
                       Đơn hàng đã rời kho phân loại
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().add(maxDeliveryDay - 1, 'days').add(8, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment(deliveredat)
+                        .subtract({ hours: 12 })
+                        .format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
 
                     <div>Đã tới kho Bình Tân</div>
@@ -82,7 +114,13 @@ export default function Page() {
                 ),
               },
               {
-                label: <span className=''>{moment().add(maxDeliveryDay - 1, 'days').add(5, 'hours').format('HH:mm')}</span>,
+                label: (
+                  <span className=''>
+                    {moment(deliveredat)
+                      .subtract({ hours: 16 })
+                      .format('HH:mm')}
+                  </span>
+                ),
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
 
                 children: (
@@ -91,7 +129,9 @@ export default function Page() {
                       Đơn hàng đã rời kho phân loại
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().add(maxDeliveryDay - 1, 'days').add(5, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment(deliveredat)
+                        .subtract({ hours: 16 })
+                        .format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
                     <div>Đã rời kho Tân tạo</div>
                     <hr className=' mt-5' />
@@ -100,7 +140,13 @@ export default function Page() {
               },
 
               {
-                label: <span className=''>{moment().add(maxDeliveryDay - 2, 'days').add(12, 'hours').format('HH:mm')}</span>,
+                label: (
+                  <span className=''>
+                    {moment(deliveredat)
+                      .subtract({ hours: 19 })
+                      .format('HH:mm')}
+                  </span>
+                ),
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
 
                 children: (
@@ -109,7 +155,9 @@ export default function Page() {
                       Đơn hàng đã rời bưu cục
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().add(maxDeliveryDay - 2, 'days').add(12, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment(deliveredat)
+                        .subtract({ hours: 19 })
+                        .format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
                     <div>Đã rời bưu cục</div>
                     <hr className=' mt-5' />
@@ -118,7 +166,13 @@ export default function Page() {
               },
 
               {
-                label: <span className=''>{moment().add(maxDeliveryDay - 2, 'days').add(6, 'hours').format('HH:mm')}</span>,
+                label: (
+                  <span className=''>
+                    {moment(deliveredat)
+                      .subtract({ days: 1, hours: 18 })
+                      .format('HH:mm')}
+                  </span>
+                ),
                 dot: <Dot style={'bg-green-500 border-green-300'} />,
 
                 children: (
@@ -127,7 +181,9 @@ export default function Page() {
                       Đang được chuẩn bị
                     </div>
                     <span className='text-sm text-gray-500'>
-                      {moment().add(maxDeliveryDay - 2, 'days').add(6, 'hours').format('HH:mm, dddd DD/MM/YYYY')}
+                      {moment(deliveredat)
+                        .subtract({ days: 1, hours: 18 })
+                        .format('HH:mm, dddd DD/MM/YYYY')}
                     </span>
                     <div>Người gửi đang chuẩn bị hàng</div>
                     <hr className=' mt-5' />
@@ -162,24 +218,28 @@ export default function Page() {
               Kiện hàng gồm
             </span>
             <div className='flex flex-col gap-3'>
-              {carts &&
-                carts.length &&
-                carts.map((i) => {
+              {orders?.order_items &&
+                orders?.order_items.length &&
+                orders?.order_items.map((i) => {
+                  const imagesArr = i.products?.images?.split(';');
+
                   return (
                     <Link
-                      href={`/detail/${i.id}`}
+                      href={`/detail/${i.productid}`}
                       className='flex flex-row items-center'
                     >
                       <Image
-                        src={`/${i.image}`}
+                        src={`/products/${imagesArr[0]}`}
                         width={100}
                         height={100}
-                        alt={i.image}
+                        alt={imagesArr[0]}
                       />
                       <div className='flex flex-col ml-2'>
-                        <span className='font-semibold text-lg'>{i.name}</span>
+                        <span className='font-semibold text-lg'>
+                          {i.products.name}
+                        </span>
                         <span className='text-gray-500 text-sm'>
-                          Bán và giao bởi {i?.shops?.name}
+                          Bán và giao bởi {i.products?.shops?.name}
                         </span>
                         <span className='text-sm mt-2 text-gray-400'>
                           Số lượng: {i.quantity}

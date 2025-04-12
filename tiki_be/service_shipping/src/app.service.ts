@@ -11,12 +11,12 @@ export class AppService {
   async findAll(params: {
     skip?: number;
     take?: number;
-    cursor?: Prisma.shippingWhereUniqueInput;
-    where?: Prisma.shippingWhereInput;
-    orderBy?: Prisma.shippingOrderByWithRelationInput;
+    cursor?: Prisma.shippingsWhereUniqueInput;
+    where?: Prisma.shippingsWhereInput;
+    orderBy?: Prisma.shippingsOrderByWithRelationInput;
   }): Promise<Shipping[]> {
     const { skip, take, cursor, where, orderBy } = params;
-    const shippings = await this.prisma.shipping.findMany({
+    const shippings = await this.prisma.shippings.findMany({
       skip,
       take,
       cursor,
@@ -30,9 +30,9 @@ export class AppService {
   }
 
   async findOne(
-    shopWhereUniqueInput: Prisma.shippingWhereUniqueInput,
+    shopWhereUniqueInput: Prisma.shippingsWhereUniqueInput,
   ): Promise<Shipping | null> {
-    return this.prisma.shipping.findUnique({
+    return this.prisma.shippings.findUnique({
       where: shopWhereUniqueInput,
       include: {
         orders: true,
@@ -41,7 +41,7 @@ export class AppService {
   }
 
   async create(data: CreateShippingDto): Promise<Shipping> {
-    const shipping = await this.prisma.shipping.create({
+    const shipping = await this.prisma.shippings.create({
       data,
       include: {
         orders: true,
@@ -56,11 +56,11 @@ export class AppService {
   }
 
   async update(params: {
-    where: Prisma.shippingWhereUniqueInput;
-    data: Prisma.shippingUpdateInput;
+    where: Prisma.shippingsWhereUniqueInput;
+    data: Prisma.shippingsUpdateInput;
   }): Promise<Shipping> {
     const { data, where } = params;
-    const shipping = await this.prisma.shipping.update({
+    const shipping = await this.prisma.shippings.update({
       data,
       where,
       include: {
@@ -75,8 +75,8 @@ export class AppService {
     return shipping as unknown as Shipping;
   }
 
-  async remove(where: Prisma.shippingWhereUniqueInput): Promise<Shipping> {
-    const shipping = await this.prisma.shipping.delete({
+  async remove(where: Prisma.shippingsWhereUniqueInput): Promise<Shipping> {
+    const shipping = await this.prisma.shippings.delete({
       where,
       include: {
         orders: true,

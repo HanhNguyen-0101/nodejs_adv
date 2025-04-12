@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { AppService } from './app.service';
@@ -43,8 +44,8 @@ export class AppController {
   async makepayment(payload: {
     users: User;
     order_items: CreateOrderItemDto[];
-    shipping: CreateShippingDto;
-    total: number;
+    shippings: CreateShippingDto;
+    totalamount: number;
   }) {
     return await this.appService.makepayment(payload);
   }

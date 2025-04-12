@@ -14,7 +14,8 @@ import { lastValueFrom } from 'rxjs';
 export class AppService {
   constructor(
     private prisma: PrismaService,
-    @Inject(process.env.SERVICE_SHIPPING_NAME) private shippingService: ClientProxy,
+    @Inject(process.env.SERVICE_SHIPPING_NAME)
+    private shippingService: ClientProxy,
     private orderItemsService: OrderItemsService,
   ) {}
 
@@ -56,9 +57,9 @@ export class AppService {
                 shops: true,
                 product_coupons: true,
                 product_tags: true,
-              }
+              },
             },
-          }
+          },
         },
         shippings: true,
       },

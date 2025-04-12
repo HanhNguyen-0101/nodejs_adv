@@ -23,10 +23,8 @@ import { hideLoading, showLoading } from '@/store/loadingSlice';
 import { showAlert } from '@/store/alertSlice';
 import { login, register } from '@/axios/apiService';
 import { onClearUser, onSaveUser } from '@/store/userSlice';
-import { PAGING, STATUS_CODE } from '@/constants';
 import { hideModal, showModal } from '@/store/modalSlice';
 import { Input as InputCustom } from '@/components/shared';
-import users from '@/data/users.json';
 
 const initLoginValues = {
   password: '',
@@ -57,9 +55,7 @@ export const Header = () => {
   const [registerInvalid, setRegisterInvalid] = useState(false);
 
   const handleSearch = () => {
-    router.push(
-      `/search?query=${refSearch.current.value}&take=${PAGING.TAKE}&page=1`,
-    );
+    router.push(`/search?query=${refSearch.current.value}`);
   };
 
   const handleLoginStatusChange = () => {
@@ -169,7 +165,6 @@ export const Header = () => {
       }
     }
   };
-  console.log('------Header', user, carts, isModalOpen);
 
   return (
     <div className='bg-white border-b border-gray-200'>

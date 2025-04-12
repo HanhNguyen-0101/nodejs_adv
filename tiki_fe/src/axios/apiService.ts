@@ -21,4 +21,4 @@ export const getCategories = () => fetchData<any[]>('/categories');
 export const getTags = () => fetchData<any[]>('/tags');
 
 export const createOrder = (orderData: any) =>
-  postData<typeof orderData, any>('/orders', orderData);
+  postData<typeof orderData, any>('/orders/makepayment', orderData);

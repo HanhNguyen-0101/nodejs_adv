@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Body,
   Controller,
@@ -13,7 +14,7 @@ import { lastValueFrom } from 'rxjs';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateOrderItemDto } from 'src/order_items/dto/create-order_item.dto';
-import { CreateShippingDto } from 'src/shipping/dto/create-shipping.dto';
+import { CreateShippingDto } from 'src/shippings/dto/create-shipping.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -59,10 +60,10 @@ export class OrdersController {
   async makePayment(
     @Body()
     payload: {
-      users: any,
-      order_items: CreateOrderItemDto[],
-      shipping: CreateShippingDto,
-      total: number,
+      users: any;
+      order_items: CreateOrderItemDto[];
+      shippings: CreateShippingDto;
+      totalamount: number;
     },
   ) {
     const result$ = this.ordersService.send('orders.makepayment', payload);

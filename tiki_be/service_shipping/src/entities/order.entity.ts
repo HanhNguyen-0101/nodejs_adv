@@ -20,7 +20,7 @@ export class Order {
   @OneToMany(() => OrderItem, (orderItem) => orderItem.orders, { nullable: true })
   order_items?: OrderItem[];
 
-  @ManyToOne(() => User, (user) => user.orders, {
+  @ManyToOne(() => User, (user) => user.userid, {
     onDelete: 'NO ACTION',
     onUpdate: 'NO ACTION',
     nullable: true,
