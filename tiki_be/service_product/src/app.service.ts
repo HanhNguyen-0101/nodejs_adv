@@ -13,7 +13,7 @@ export class AppService {
   constructor(
     private prisma: PrismaService,
     // private readonly searchService: SearchService,
-    // private readonly cacheService: CacheService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async findAll(params: {
@@ -25,13 +25,13 @@ export class AppService {
     searchTerm?: string;
     relate?: { tagid?: number; couponid?: number };
   }): Promise<{ products: any; total: number }> {
-    // const cacheKey = 'products_list'; // Unique cache key
-    // const cachedData = await this.cacheService.getProductCache(cacheKey);
+    const cacheKey = 'products_list'; // Unique cache key
+    const cachedData = await this.cacheService.getProductCache(cacheKey);
 
-    // if (cachedData) {
-    //   console.log('Returning data from cache');
-    //   return cachedData; // Return cached data
-    // }
+    if (cachedData) {
+      console.log('Returning data from cache');
+      return cachedData; // Return cached data
+    }
 
     console.log('Fetching data from database');
 
@@ -82,24 +82,17 @@ export class AppService {
       },
     });
 
-    // Transform the raw products to match the `Product` type
-    // const products = rawProducts.map((product) => ({
-    //   ...product,
-    //   category: product.categories, // Map `categories` to `category`
-    //   shop: product.shops, // Map `shops` to `shop`
-    // }));
-
     // Fetch total count
     const total = await this.prisma.products.count({
       where: enhancedWhere,
     });
 
     // Cache the result for 1 hour (3600 seconds)
-    // await this.cacheService.setProductCache(
-    //   cacheKey,
-    //   { products, total },
-    //   3600,
-    // );
+    await this.cacheService.setProductCache(
+      cacheKey,
+      { products: rawProducts, total },
+      3600,
+    );
 
     return { products: rawProducts, total };
   }
