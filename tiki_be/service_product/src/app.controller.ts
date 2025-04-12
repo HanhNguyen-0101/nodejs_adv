@@ -10,20 +10,20 @@ import { SearchService } from './search/search.service';
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    // private readonly searchService: SearchService,
+    private readonly searchService: SearchService,
   ) {}
 
-  // @MessagePattern('products.search')
-  // async search(payload: { searchTerm: string; skip?: number; take?: number }) {
-  //   const { searchTerm, skip, take } = payload;
-  //   const results = await this.searchService.searchProducts(
-  //     searchTerm,
-  //     skip,
-  //     take,
-  //   );
-  //   return results; // Return matched products
-  // }
-  
+  @MessagePattern('products.search')
+  async search(payload: { searchTerm: string; skip?: number; take?: number }) {
+    const { searchTerm, skip, take } = payload;
+    const results = await this.searchService.searchProducts(
+      searchTerm,
+      skip,
+      take,
+    );
+    return results; // Return matched products
+  }
+
   @MessagePattern('products.find_all')
   findAll(
     @Payload()
@@ -34,7 +34,7 @@ export class AppController {
       orderBy?: string;
       where?: string;
       relate?: string;
-    }
+    },
   ) {
     const { searchTerm, skip, take, orderBy, where, relate } = payload;
     let orderByParsed, whereParsed, relateParsed;
@@ -62,7 +62,7 @@ export class AppController {
         throw new BadRequestException('Invalid JSON format for where');
       }
     }
-  
+
     return this.appService.findAll({
       searchTerm,
       where: whereParsed,

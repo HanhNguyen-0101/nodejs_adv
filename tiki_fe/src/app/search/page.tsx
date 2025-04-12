@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { PAGING } from '@/constants';
 import { hideLoading, showLoading } from '@/store/loadingSlice';
 import { showAlert } from '@/store/alertSlice';
-import { getProducts } from '@/axios/apiService';
+import { getSearchProducts } from '@/axios/apiService';
 import { Button } from 'antd';
 
 export default function Page() {
@@ -35,7 +35,7 @@ export default function Page() {
         searchTerm: query,
       };
 
-      const productsRes = await getProducts(payload);
+      const productsRes = await getSearchProducts(payload);
       setProducts(productsRes);
     } catch (error) {
       console.error('Error submitting data', error);
@@ -59,7 +59,7 @@ export default function Page() {
         searchTerm: query,
       };
 
-      const productsRes = await getProducts(payload);
+      const productsRes = await getSearchProducts(payload);
       productsRes.products = [...products.products, ...productsRes.products];
 
       setProducts(productsRes);

@@ -12,7 +12,7 @@ import { CacheService } from './cache/cache.service';
 export class AppService {
   constructor(
     private prisma: PrismaService,
-    // private readonly searchService: SearchService,
+    private readonly searchService: SearchService,
     private readonly cacheService: CacheService,
   ) {}
 
@@ -25,7 +25,9 @@ export class AppService {
     searchTerm?: string;
     relate?: { tagid?: number; couponid?: number };
   }): Promise<{ products: any; total: number }> {
-    const cacheKey = 'products_list'; // Unique cache key
+    const { skip, take, cursor, where, orderBy, searchTerm, relate } = params;
+  
+    const cacheKey = `skip:${skip}-take:${take}-searchTerm:${searchTerm}-where:${JSON.stringify(where)}-relate:${JSON.stringify(relate)}`; // Unique cache key
     const cachedData = await this.cacheService.getProductCache(cacheKey);
 
     if (cachedData) {
@@ -34,8 +36,6 @@ export class AppService {
     }
 
     console.log('Fetching data from database');
-
-    const { skip, take, cursor, where, orderBy, searchTerm, relate } = params;
 
     const enhancedWhere: Prisma.productsWhereInput = {
       ...where,
@@ -71,13 +71,13 @@ export class AppService {
           include: {
             products: true,
             coupons: true,
-          }
+          },
         },
         product_tags: {
           include: {
             products: true,
             tags: true,
-          }
+          },
         },
       },
     });
@@ -109,13 +109,13 @@ export class AppService {
           include: {
             products: true,
             coupons: true,
-          }
+          },
         },
         product_tags: {
           include: {
             products: true,
             tags: true,
-          }
+          },
         },
       },
     }) as Promise<Product | null>;
@@ -131,13 +131,13 @@ export class AppService {
           include: {
             products: true,
             coupons: true,
-          }
+          },
         },
         product_tags: {
           include: {
             products: true,
             tags: true,
-          }
+          },
         },
       },
     });
@@ -150,7 +150,7 @@ export class AppService {
       throw new Error('Category property is missing in the product.');
     }
 
-    // await this.searchService.indexProduct(product); // Index product in Elasticsearch
+    await this.searchService.indexProduct(product); // Index product in Elasticsearch
 
     return product as unknown as Product;
   }
@@ -170,13 +170,13 @@ export class AppService {
           include: {
             products: true,
             coupons: true,
-          }
+          },
         },
         product_tags: {
           include: {
             products: true,
             tags: true,
-          }
+          },
         },
       },
     });
@@ -188,7 +188,10 @@ export class AppService {
     if (!product.categories) {
       throw new Error('Category property is missing in the product.');
     }
-    // await this.searchService.indexProduct({ id: where.productid, ...data }); // Reindex updated product
+    await this.searchService.indexProduct({
+      body: product,
+      id: where.productid,
+    }); // Reindex updated product
 
     return product as unknown as Product;
   }
@@ -203,13 +206,13 @@ export class AppService {
           include: {
             products: true,
             coupons: true,
-          }
+          },
         },
         product_tags: {
           include: {
             products: true,
             tags: true,
-          }
+          },
         },
       },
     });

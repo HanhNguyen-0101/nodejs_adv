@@ -44,6 +44,13 @@ export class ProductsController {
     return products;
   }
 
+  @Post()
+  async create(@Body() createProductDto: CreateProductDto) {
+    return await lastValueFrom(
+      this.productService.send('products.create', createProductDto),
+    );
+  }
+
   @Get('/search')
   async search(
     @Query('searchTerm') searchTerm?: string,
@@ -59,13 +66,6 @@ export class ProductsController {
     );
 
     return products;
-  }
-
-  @Post()
-  async create(@Body() createProductDto: CreateProductDto) {
-    return await lastValueFrom(
-      this.productService.send('products.create', createProductDto),
-    );
   }
 
   @Get(':id')

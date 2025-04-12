@@ -17,6 +17,12 @@ export const getProducts = (p0?: {
 }) => fetchData<any[]>('/products', p0);
 export const getProduct = (slug: string) => fetchData<any>(`/products/${slug}`);
 
+export const getSearchProducts = (p0?: {
+  skip?: number;
+  take?: number;
+  searchTerm?: string;
+}) => fetchData<any[]>('/products/search', p0);
+
 export const getCategories = () => fetchData<any[]>('/categories');
 export const getTags = () => fetchData<any[]>('/tags');
 
