@@ -35,10 +35,6 @@ export class CreateProductDto {
   @IsOptional()
   discount?: number;
 
-  @IsString()
-  @IsOptional()
-  image?: string;
-
   @IsNumber()
   @IsOptional()
   maxdeliveryday?: number;

@@ -36,9 +36,6 @@ export class Product {
   @Column('decimal', { nullable: true, precision: 10, scale: 2 })
   discount?: number;
 
-  @Column({ nullable: true, length: 255 })
-  image?: string;
-
   @Column({ nullable: true })
   maxdeliveryday?: number;
 

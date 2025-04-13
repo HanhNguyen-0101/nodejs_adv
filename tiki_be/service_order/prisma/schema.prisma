@@ -70,7 +70,6 @@ model products {
   madein          String?           @db.VarChar(100)
   rating          Decimal?          @db.Decimal(3, 2)
   discount        Decimal?          @db.Decimal(10, 2)
-  image           String?           @db.VarChar(255)
   maxdeliveryday  Int?
   images          String?           @db.VarChar(255)
   shopid          Int?
